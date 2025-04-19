@@ -1,0 +1,60 @@
+;; -*- lexical-binding: t -*-
+;;!drop-when-bundled
+(provide 'lelde/project/update)
+(require 'lelde/project/update/util)
+(require 'lelde/META)
+(require 'lelde/cli)
+(require 'lelde/rsc)
+(require 'lelde/project)
+(require 'lelde/stmax/emit)
+;;!end
+;;;; lelde/project/update
+
+;;!export
+(defun lelde/project/update::update-project-files ()
+  (lelde/cli::init)
+  (apply #'lelde/project/update::update-files command-line-args-left))
+
+(defun lelde/project/update::update-files (&rest files)
+  (dolist (file files)
+    (lelde/project/update::update-file file)))
+
+(defsubst lelde/project/update::update-file--make-template-alist (index base)
+  (let ((templates (lelde/rsc::get-rsc-file-list base)))
+    (--map (cons (s-replace "@@" "" (s-replace "@index@" index it)) it)
+           templates)))
+
+(defsubst lelde/project/update::update-file--make-env (pinfo)
+  (let* ((env-slot '("@ENV"))
+         (env       (list env-slot)))
+    (dolist (kwd (-filter #'keywordp pinfo))
+      (let ((key   (s-replace-regexp "\\`:" "" (symbol-name kwd)))
+            (value (plist-get pinfo kwd)))
+        (push (cons key value) env)))
+    (setcdr env-slot env)
+    env))
+
+(defun lelde/project/update::update-file (file &optional base)
+  (setq base (or base "template"))
+  (let* ((pinfo     (lelde/project::get-project-info "."))
+         (pp        (plist-get pinfo :project-path))
+         (index     (plist-get pinfo :index))
+         (t-alist   (lelde/project/update::update-file--make-template-alist
+                     index base))
+         (template  (let ((slot (assoc file t-alist)))
+                      (unless slot
+                        (error "Undefined way to update of \"%s\"." file))
+                      (lelde/rsc::get-rsc (f-join base (cdr slot)))))
+         (env        (lelde/project/update::update-file--make-env pinfo)))
+    (let ((dir (f-dirname (f-expand file pp))))
+      (unless (f-dir-p dir) (apply #'f-mkdir (f-split dir))))
+    (with-temp-file (f-expand file pp)
+      (insert (tinplate-fill template  env))
+      (message "Update: %s" file))))
+
+;;(lelde/project/update::update-file "Cask")
+;;(lelde/project/update::update-file "Makefile")
+;;(lelde/project/update::update-file "init.sh" "bootstrap")
+
+;;(insert "\n" (lelde/project/update::update-file "src/lelde.src.el"))
+;;(insert "\n" (ppp-sexp-to-string (lelde/project/update::update-file "Cask")))

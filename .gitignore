@@ -1,0 +1,9 @@
+#*
+.#*
+*.elc
+.cask
+old
+bootstrap-dev-init.el
+local-config.el
+local-lelde-config.el
+Cask.local

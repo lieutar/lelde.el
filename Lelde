@@ -1,0 +1,53 @@
+;; -*- lisp-data -*-
+(lelde-project
+ :name    "lelde.el"
+ :version "0.1.0"
+ :emacs   "29.3"
+ :index   "lelde"
+
+ :brief  "Live Emacs Lisp Development Environment"
+
+ :copyright "2025 lieutar <lieutar@gmail.com>"
+ :author    "lieutar <lieutar@gmail.com>"
+ :keywords  ("Emacs-Lisp" "Programming" "Develop")
+ :url       "https://github.com/lieutar/lelde"
+ :license "This project is licensed under the GNU General Public License v3.
+see: https://www.gnu.org/licenses/gpl-3.0.html"
+
+ :commentary "`lelde' provides following solutions.
+
+  - meta-programing using static macros ( by `stmax' )
+  - module bundling ( by `elconc' )
+  - test environment building
+  - module reloading by development sources
+"
+ :sources (gnu
+           melpa
+           ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
+
+ :dependency (f
+              s
+              dash
+              ppp
+              package   ;; core
+              cl-lib    ;; core
+              prinfo
+              stmax
+              elconc
+              tinplate
+              )
+ :dev-dependency (buttercup
+                  slash-tmp
+                  with-advice )
+
+  :files ("rsc/**/*")
+
+  :src-dir      "src"
+
+  :test-feature "-l buttercup"
+  :test-runner  "-f buttercup-run"
+
+  :tests-dir    "tests"
+  :test-lib-dir "tests/lib"
+  :test-rsc-dir "tests/rsc"
+  )

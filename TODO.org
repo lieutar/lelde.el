@@ -1,0 +1,36 @@
+* ToDo
+
+Following TODO list items will move on CHANGELOG.org and apply in the future.
+
+** TODO dev/pages
+
+Setting to GitHub Pages of this project. ( Apparently Wiki is more suitable ? )
+
+** TODO dev/cli
+
+*** TODO purge depending to cask
+:PROPERTIES:
+:Effort: 2d
+:END:
+
+Cask.local approach is a bit ugly.
+
+*** TODO purge depending to make
+
+
+* Pending
+
+
+** dev/cask-to-eask
+
+*** DONE Install eask
+
+Change the basic architecture from using Cask + Makefile into using eask.
+
+
+*** TODO Research eask's usage on concrete cases.
+
+- pending :: due to "eask install"'s segmentation fault.
+  
+On some simple project.
+

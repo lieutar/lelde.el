@@ -1,0 +1,33 @@
+;; -*- lisp-data -*-
+(lelde-project
+ :name "{{name}}"
+ :index "{{index}}"
+ :version "0.1.0"
+ :drop-version-on-recipe t
+ :emacs {{()(format "%S" emacs-version)}}
+ :brief  ""     ;; YOUR MODULE'S SHORT DESCRIPTION
+ :commentary "" ;; YOUR MODULE'S LONG DESCRIPTION
+ :copyright {{(copyright)(format "%S" copyright)}}
+ :author    {{(author)(format "%S" author)}}
+ :keywords  ()
+ :url       ""
+ :repo      nil
+ :files     ()
+ :license "This project is licensed under the GNU General Public License v3.
+See: https://www.gnu.org/licenses/gpl-3.0.html"
+ :sources   (gnu
+             melpa
+             ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
+ :dependency ()
+ :dev-dependency (lelde
+                  ;;buttercup
+                  )
+  ;;            ert                               buttercup
+  :test-feature "-l ert"                          ;; "-l buttercup"
+  :test-runner  "-f ert-run-tests-batch-and-exit" ;; "-f buttercup-run"
+
+  :src-dir      "src"
+  :tests-dir    "tests"
+  :test-lib-dir "tests/lib"
+  :test-rsc-dir "tests/rsc"
+  )

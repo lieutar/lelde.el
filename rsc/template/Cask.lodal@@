@@ -1,0 +1,11 @@
+;; -*- lisp-data -*-
+;;
+;; This file is contained in .gitignore.
+;;
+
+;;; You can use local package archive settings.
+;; (source "melpa-mirror" "~/work/emacs/melpa-mirror")
+
+;;; If you don't use remote package archive comment out or remove
+;;  following settings.
+{{(sources)(lelde/project/update/util::Cask-sources sources)}}

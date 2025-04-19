@@ -1,0 +1,15 @@
+;; -*- lexical-binding: t -*-
+
+;;!drop-when-bundled
+(provide '{{index}})
+;;!end
+
+;;;;; {{index}}/META
+
+(defconst {{index}}-VERSION {{(version)(format "%S" version)}})
+
+{{(dependency)
+(mapconcat
+ (lambda (dep) (format "(require '%s)\n" (car dep)))
+ dependency)
+}}
