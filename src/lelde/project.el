@@ -5,6 +5,7 @@
 (require 'lelde/META)
 (require 'lelde/project/depends)
 ;;!end
+
 ;;; lelde/project
 
 (defun lelde/project::find-project-root (&optional base)
@@ -18,28 +19,31 @@
           ;; TODO: get information from git configuration
           ;; git config --global user.name
           ;; git config --global user.email
-         (author (format "%s <%s>" user-full-name user-mail-address))
+         (author    (format "%s <%s>" user-full-name user-mail-address))
          (copyright (format "%s %s"
                             (decoded-time-year (decode-time (current-time)))
                             author)))
-    (list :name            name
-          :index           index
-          :brief           ""
-          :commentary      ""
-          :files           nil
-          :copyright       copyright
-          :author          author
-          :emacs           emacs-version
-          :project-path    project-root
-          :sources        '(gnu melpa)
-          :dependency      nil
-          :dev-dependency nil
-          :test-feature   ""
-          :test-runner    ""
-          :src-dir        "src"
-          :tests-dir      "tests"
-          :test-lib-dir   "tests/lib"
-          :test-rsc-dir   "tests/rsc")))
+    (list :name                 name
+          :index                index
+          :libs                 nil
+          :brief                ""
+          :commentary           ""
+          :files                nil
+          :copyright            copyright
+          :author               author
+          :emacs                emacs-version
+          :project-path         project-root
+          :sources              '(gnu melpa)
+          :dependency           nil
+          :dev-dependency       nil
+          :test-feature         ""
+          :test-runner          ""
+          :src-dir              "src"
+          :rsc-dir              "rsc"
+          :test-unit-dir        "test/unit"
+          :test-integration-dir "test/integration"
+          :test-lib-dir         "test/lib"
+          :test-rsc-dir         "test/rsc")))
 
 (defun lelde/project::get-project-config-file (project-root)
   (setq project-root (lelde/project::find-project-root project-root))
@@ -79,6 +83,7 @@ The information has following properties.
 
   :name (string)
   :index (string)
+  :libs (list<string>) - List of additional libraries. Default is nil.
   :project-path (string) - The root directory of the project (containing .git).
   :brief (string) - Short description of the module.
   :commentary (string) - Long description of the module.
@@ -97,34 +102,37 @@ The information has following properties.
          If provided, it will be expanded relative to the project root.
   :src-path (string) - The realpath of the :src-dir.
 
-  :tests-dir (string, optional) - The directory containing test scripts.
-         Defaults to \"tests\".
+  :test-unit-dir (string, optional) - The directory containing test scripts.
+         Defaults to \"test/unit\".
          If provided, it will be expanded relative to the project root.
-  :tests-path (string) - The realpath of the :tests-dir.
+  :test-unit-path (string) - The realpath of the :test-unit-dir.
 
-  :test-lib-dir (string, optional) - The directory containing libraries for tests.
-         Defaults to (f-join :tests-dir \"lib\").
+  :test-integration-dir (string, optional) - The directory
+         containing test scripts.
+         Defaults to \"test/integration\".
          If provided, it will be expanded relative to the project root.
-  :tests-lib-dir (string) - An alias for :test-lib-dir.
-         Use this option to specify the test library directory at
-         the project level.
+  :test-integration-path (string) - The realpath of the :test-integration-dir.
+
+  :test-lib-dir (string, optional) - The directory containing libraries
+         for tests.
+         Defaults to \"test/lib\"
+         If provided, it will be expanded relative to the project root.
   :test-lib-path (string) - The realpath of the :test-lib-dir.
-  :tests-lib-path (string) - An alias for :test-lib-path.
 
-  :test-rsc-dir (string, optional) - The directory containing resources for tests.
-    Defaults to (f-join :tests-dir \"rsc\").
-    If provided, it will be expanded relative to the project root.
-  :tests-rsc-dir (string) - An alias for :test-rsc-dir.
-    Use this option to specify the test resource directory at the project level.
+  :test-rsc-dir (string, optional) - The directory containing resources
+         for tests.
+         Defaults to \"test/rsc\".
+         If provided, it will be expanded relative to the project root.
   :test-rsc-path (string) - The realpath of the :test-rsc-dir.
-  :tests-rsc-path (string) - An alias for :test-rsc-path.
 "
   (let ((project-root (lelde/project::find-project-root path)))
     (let ((cfg (lelde/project::read-project-config project-root)))
       (plist-put cfg :src-path
                  (f-expand (plist-get cfg :src-dir) project-root))
-      (plist-put cfg :tests-path
-                 (f-expand (plist-get cfg :tests-dir) project-root))
+      (plist-put cfg :test-unit-path
+                 (f-expand (plist-get cfg :test-unit-dir) project-root))
+      (plist-put cfg :test-integration-path
+                 (f-expand (plist-get cfg :test-integration-dir) project-root))
       (plist-put cfg :test-lib-path
                  (f-expand (plist-get cfg :test-lib-dir) project-root))
       (plist-put cfg :test-rsc-path

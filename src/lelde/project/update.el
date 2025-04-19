@@ -8,6 +8,7 @@
 (require 'lelde/project)
 (require 'lelde/stmax/emit)
 ;;!end
+
 ;;;; lelde/project/update
 
 ;;!export
@@ -19,10 +20,21 @@
   (dolist (file files)
     (lelde/project/update::update-file file)))
 
-(defsubst lelde/project/update::update-file--make-template-alist (index base)
-  (let ((templates (lelde/rsc::get-rsc-file-list base)))
-    (--map (cons (s-replace "@@" "" (s-replace "@index@" index it)) it)
-           templates)))
+(defsubst lelde/project/update::update-file--make-template-alist (pinfo base)
+  (let ((index (plist-get pinfo :index)))
+    (let ((templates (lelde/rsc::get-rsc-file-list base)))
+      (--map (cons (let ((src it)
+                         (match (-map #'cadr (s-match-strings-all
+                                              "@\\([^@]*\\)@" it))))
+                     (dolist (key match)
+                       (let* ((kwd (intern (format ":%s" key)))
+                              (val (plist-get pinfo kwd)))
+                         (when (stringp val)
+                           (setq src (s-replace (format "@%s@" key)
+                                                val src)))))
+                     (s-replace "@@" "" src))
+                   it)
+             templates))))
 
 (defsubst lelde/project/update::update-file--make-env (pinfo)
   (let* ((env-slot '("@ENV"))
@@ -40,7 +52,7 @@
          (pp        (plist-get pinfo :project-path))
          (index     (plist-get pinfo :index))
          (t-alist   (lelde/project/update::update-file--make-template-alist
-                     index base))
+                     pinfo base))
          (template  (let ((slot (assoc file t-alist)))
                       (unless slot
                         (error "Undefined way to update of \"%s\"." file))

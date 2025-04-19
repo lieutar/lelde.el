@@ -3,7 +3,7 @@
 (provide 'lelde/project/depends)
 (require 'lelde/META)
 ;;!end
-
+
 ;;; lelde/project/depends
 
 (defun lelde/project/depends::is-core-module-p (package)

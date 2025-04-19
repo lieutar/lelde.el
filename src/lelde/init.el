@@ -3,6 +3,8 @@
 ;;!drop-when-bundled
 (require 'lelde/META)
 ;;!end
+
+;;;; lelde/init
 
 (defvar lelde/init::$init-hook nil)
 

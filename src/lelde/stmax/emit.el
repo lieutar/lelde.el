@@ -6,7 +6,7 @@
 (require 'lelde/stmax/emit/export)
 (require 'lelde/rsc)
 ;;!end
-
+
 ;;!export
 (defvar lelde/stmax/emit::$emit-for-index-functions '())
 

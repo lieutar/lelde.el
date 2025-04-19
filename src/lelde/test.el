@@ -1,17 +1,4 @@
 ;; -*- lexical-binding: t -*-
-;;; lelde/test.el --- Helps to make your test environment.
-
-;; Copyright (C) 2025 lieutar <lieutar@gmail.com>
-
-;;; License:
-
-;; For a full copy of the GNU General Public License
-;; see <http://www.gnu.org/licenses/>.
-
-;;; Commentary:
-;;
-
-;;; Code:
 
 ;;!drop-when-bundled
 (provide 'lelde/test)
@@ -20,6 +7,7 @@
 (require 'lelde/test/util)
 ;;!end
 
+;;;; lelde/test
 
 (defun lelde/test::find-project-root     (this-test)
   (lelde/project::find-project-root (directory-file-name this-test)))
@@ -55,12 +43,8 @@ for example:
 
 ;; -*- lexical-binding: t -*-
 (require 'lelde)
-(lelde-setup-test-environment $TEST-SPEC)
-(setq TEST-RESOURCES (expand-file-name \"resouces\"
-                                       (plist-get TEST-SPEC :tests-path)))
+(lelde-setup-test-environment $T) ;; set to $T test spec
 
-If you want to know of the return value and `OPTIONS' argument,
-see the documentation of `lelde/test::make-test-spec'.
 "
   `(let ((test-spec (lelde/test::make-test-spec
                        (or load-file-name buffer-file-name))))

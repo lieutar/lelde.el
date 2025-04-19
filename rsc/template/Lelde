@@ -26,8 +26,9 @@ See: https://www.gnu.org/licenses/gpl-3.0.html"
   :test-feature "-l ert"                          ;; "-l buttercup"
   :test-runner  "-f ert-run-tests-batch-and-exit" ;; "-f buttercup-run"
 
-  :src-dir      "src"
-  :tests-dir    "tests"
-  :test-lib-dir "tests/lib"
-  :test-rsc-dir "tests/rsc"
+  :src-dir              "src"
+  :test-unit-dir        "test/unit"
+  :test-integration-dir "test/integration"
+  :test-lib-dir         "test/lib"
+  :test-rsc-dir         "test/rsc"
   )

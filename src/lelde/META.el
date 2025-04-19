@@ -3,8 +3,8 @@
 ;;!drop-when-bundled
 (provide 'lelde/META)
 ;;!end
-
-;;;;; lelde/META
+
+;;;; lelde/META
 
 (defconst lelde-VERSION "0.1.0")
 

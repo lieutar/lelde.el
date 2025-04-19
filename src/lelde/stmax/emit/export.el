@@ -1,23 +1,12 @@
 ;; -*- lexical-binding: t -*-
-;;; lelde/stmax/emit/export.el ---
-
-;; Copyright (C) 2025 lieutar <lieutar@gmail.com>
-
-;;; License:
-
-;; For a full copy of the GNU General Public License
-;; see <http://www.gnu.org/licenses/>.
-
-;;; Commentary:
-;;
-
-;;; Code:
 ;;!drop-when-bundled
 (provide 'lelde/stmax/emit/export)
 (require 'lelde/META)
 (require 'lelde/project)
 (require 'lelde/project/modules)
 ;;!end
+
+;;;; lelde/stmax/emit/export
 
 (defun lelde/stmax/emit/export::parse-arg (src)
   (let ((arg-sexp (and (s-match "[^[:space:]\n\r]" src)
