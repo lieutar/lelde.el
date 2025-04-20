@@ -42,12 +42,16 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
 
   :files ("rsc/**/*")
 
-  :src-dir      "src"
+  :src-dir       "src"
+  :scripts-dir   "scripts"
 
   :test-feature "-l buttercup"
-  :test-runner  "-f buttercup-run"
+  :test-runner  "--eval '(describe \"\")' -f buttercup-run"
 
-  :tests-dir    "tests"
-  :test-lib-dir "tests/lib"
-  :test-rsc-dir "tests/rsc"
+  :test-integration-suffix ".test.el"
+  :test-unit-suffix ".unit.el"
+
+  :test-scripts-dir "test/scripts"
+  :test-lib-dir     "tests/lib"
+  :test-rsc-dir     "tests/rsc"
   )

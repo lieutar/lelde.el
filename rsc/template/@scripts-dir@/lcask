@@ -11,11 +11,11 @@ if [ -f "Cask" ] ; then
         cp Cask.local Cask
         sed -e "s/(source/;; (source/" Cask.orig >> Cask
     fi
-    cask $@
+    cask "$@"
     if [ -f "Cask.orig" ] ;then
         rm Cask
         mv Cask.orig Cask
     fi
 else
-    cask $@
+    cask "$@"
 fi

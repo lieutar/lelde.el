@@ -23,27 +23,29 @@
          (copyright (format "%s %s"
                             (decoded-time-year (decode-time (current-time)))
                             author)))
-    (list :name                 name
-          :index                index
-          :libs                 nil
-          :brief                ""
-          :commentary           ""
-          :files                nil
-          :copyright            copyright
-          :author               author
-          :emacs                emacs-version
-          :project-path         project-root
-          :sources              '(gnu melpa)
-          :dependency           nil
-          :dev-dependency       nil
-          :test-feature         ""
-          :test-runner          ""
-          :src-dir              "src"
-          :rsc-dir              "rsc"
-          :test-unit-dir        "test/unit"
-          :test-integration-dir "test/integration"
-          :test-lib-dir         "test/lib"
-          :test-rsc-dir         "test/rsc")))
+    (list :name                    name
+          :index                   index
+          :libs                    nil
+          :brief                   ""
+          :commentary              ""
+          :files                   nil
+          :copyright               copyright
+          :author                  author
+          :emacs                   emacs-version
+          :project-path            project-root
+          :sources                 '(gnu melpa)
+          :dependency              nil
+          :dev-dependency          nil
+          :test-feature            ""
+          :test-runner             ""
+          :src-dir                 "src"
+          :rsc-dir                 "rsc"
+          :scripts-dir             "scripts"
+          :test-integration-suffix ".test.el"
+          :test-unit-suffix        ".unit.el"
+          :test-scripts-dir        "test/scripts"
+          :test-lib-dir            "test/lib"
+          :test-rsc-dir            "test/rsc")))
 
 (defun lelde/project::get-project-config-file (project-root)
   (setq project-root (lelde/project::find-project-root project-root))
@@ -94,24 +96,24 @@ The information has following properties.
   :sources (list<symbol|list<string>>) -
   :dependency (list<symbol|string>) -
   :dev-dependency (list<symbol|string>) -
-  :test-feature (string) -
-  :test-runner (string) -
 
-  :src-dir (string, optional) - The directory containing elisp files.
-         Defaults to \"\".
+  :src-dir (string) - The directory containing elisp files.
+         Defaults to \"src\".
          If provided, it will be expanded relative to the project root.
   :src-path (string) - The realpath of the :src-dir.
 
-  :test-unit-dir (string, optional) - The directory containing test scripts.
-         Defaults to \"test/unit\".
-         If provided, it will be expanded relative to the project root.
-  :test-unit-path (string) - The realpath of the :test-unit-dir.
+  :scripts-dir (string)
+  :scripts-path (string)
 
-  :test-integration-dir (string, optional) - The directory
-         containing test scripts.
-         Defaults to \"test/integration\".
+  :test-feature (string) - emacs options to load additional test frameworks.
+  :test-runner (string) - emacs options to execute additional test runners.
+  :test-integration-suffix (string) - suffix of integration test scripts.
+  :test-unit-suffix (string) - suffix of unit test scripts.
+
+  :test-scripts-dir (string, optional) - The directory containing test scripts.
+         Defaults to \"test/scripts\".
          If provided, it will be expanded relative to the project root.
-  :test-integration-path (string) - The realpath of the :test-integration-dir.
+  :test-scripts-path (string) - The realpath of the :test-scripts-dir.
 
   :test-lib-dir (string, optional) - The directory containing libraries
          for tests.
@@ -129,10 +131,10 @@ The information has following properties.
     (let ((cfg (lelde/project::read-project-config project-root)))
       (plist-put cfg :src-path
                  (f-expand (plist-get cfg :src-dir) project-root))
-      (plist-put cfg :test-unit-path
-                 (f-expand (plist-get cfg :test-unit-dir) project-root))
-      (plist-put cfg :test-integration-path
-                 (f-expand (plist-get cfg :test-integration-dir) project-root))
+      (plist-put cfg :scripts-path
+                 (f-expand (plist-get cfg :scripts-dir) project-root))
+      (plist-put cfg :test-scripts-path
+                 (f-expand (plist-get cfg :test-scripts-dir) project-root))
       (plist-put cfg :test-lib-path
                  (f-expand (plist-get cfg :test-lib-dir) project-root))
       (plist-put cfg :test-rsc-path

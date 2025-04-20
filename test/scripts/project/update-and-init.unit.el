@@ -8,7 +8,7 @@
 (require 'dash)
 (require 'ppp)
 
-(defconst lelde-test/project/init::$num-files 14)
+(defconst lelde-test/project/init::$num-files 17)
 
 (describe "lelde/project/init"
   (let ((name-to-index
@@ -44,11 +44,14 @@
           (should (assoc (format "./recipe/local/%s" index) content))
           (should (assoc (format "./recipe/public/%s" index) content))
           (should (assoc "./scripts/lcask" content))
+          (should (assoc "./scripts/test" content))
+          (should (assoc "./scripts/truncate" content))
           (should (assoc "./src/README.md" content))
           (should (assoc (format "./src/%s.src.el" index) content))
           (should (assoc (format "./src/%s/META.el" index) content))
           (should (assoc (format "./src/%s/core.el" index) content))
-          (should (assoc (format "./test/integration/%s.byte-compile.test.el" index) content))
+          (should (assoc "./test/scripts/core.unit.el" content))
+          (should (assoc "./test/scripts/integration-lint.test.el" content))
           )))
 
     (describe "init with some files"
@@ -64,7 +67,7 @@
           (lelde/project/init::init-project)
           (setq content (funcall get-content)))
         (it "assertions"
-          (should (= (length content) (+ 2 lelde-test/project/init::$num-files)))
+          (should (= (length content)(+ 2 lelde-test/project/init::$num-files)))
           (should (assoc "./Makefile.bak" content))
           (should (assoc "./Makefile" content))
           (should (string= (cdr (assoc "./Lelde.bak" content)) "princess"))

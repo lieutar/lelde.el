@@ -1,27 +1,26 @@
 EMACS      ?= emacs
 CASK       ?= scripts/lcask
-T          ?= $(shell find tests -name '*.test.el')
-TCOLS	   ?= 320
 
 PROJECT      := lelde.el
 INDEX	     := lelde
 INDEX_EL     := $(INDEX).el
 TARGET	     := $(INDEX).elc
 PKG_EL       := $(INDEX)-pkg.el
-LT           := $(foreach f,$(T),-l $f)
 SRC_DIR      := src
 SRC_INDEX_EL := $(SRC_DIR)/$(INDEX_EL)
 META_EL      := $(SRC_DIR)/$(INDEX)/META.el
 SUBMOD_DIR   := $(SRC_DIR)/$(INDEX)
-EMACS_OPTS   := --batch -Q -L $(SRC_DIR)
+EMACS_OPTS   := --batch -Q
 
 ################################################################################
 .DEFAULT_GOAL := help
-PHONY	     := help all build clean clean-all clean-cask test update
+PHONY	     := help all build clean clean-all clean-cask update\
+	test test-unit test-integration
 
 update_makefile_itself := yes
 
-emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS)
+emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
+emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 lelde_update = $(emacs_common) -l lelde -f lelde-update-project-files
 lelde_fill   = $(emacs_common) -l lelde -f lelde-fill
 lelde_bundle = $(emacs_common) -l lelde -f lelde-bundle
@@ -144,13 +143,25 @@ clean-cask:
 #>    If you want to run specific test script,
 #>    you can use T environment variable. for example:
 #>
-#>        T=scripts/lelde.test.el make test
+#>        T=test/scripts/lelde.test.el make test
 #>
+
+T          ?=
+I	   ?= $(shell find test/scripts -name '*.test.el')
+U	   ?= $(shell find test/scripts -name '*.unit.el')
+TCOLS	   ?= 320
+LI	   := $(foreach f,$(I),-l $f)
+LU	   := $(foreach f,$(U),-l $f)
+
+test_common := $(emacs_common) -l ert -l buttercup
+test_runner :=  --eval '(describe "")' -f buttercup-run -f ert-run-tests-batch-and-exit
+test_truncate := TCOLS=$(TCOLS) scripts/truncate
+
 test:
-	$(emacs_common) -l ert \
-			-l buttercup \
-			$(LT) \
-			-f buttercup-run \
-			-f ert-run-tests-batch-and-exit \
-   |awk -ve="$INSIDE_EMACS" -e \
-   '{if(e&&length($$0)>$(TCOLS)){print substr($$0,1,$(TCOLS))" ..."}else{print}}'
+	@scripts/test $(T)
+
+test-unit:
+	@$(test_common) $(LU) $(test_runner) | $(test_truncate)
+
+test-integration:
+	@$(test_common) $(IU) $(test_runner) | $(test_truncate)

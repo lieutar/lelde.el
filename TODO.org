@@ -6,7 +6,54 @@ Following TODO list items will move on CHANGELOG.org and apply in the future.
 
 Setting to GitHub Pages of this project. ( Apparently Wiki is more suitable ? )
 
+** TODO :license property to use SPDX
+
+[[SPDX licenses.json][https://github.com/spdx/license-list-data/blob/main/json/licenses.json]]
+
+#+BEGIN_SRC lisp-data
+  :license (spdx "GPL-3.0-or-later")
+#+END_SRC
+
+or
+
+#+BEGIN_SRC lisp-data
+  :license GPL-3.0-or-later
+#+END_SRC
+
+to make licenseId to short message is
+
+#+BEGIN_SRC text
+  This project is licensed under {{name}}.
+  See: {{(seeAlso)(car seeAlso)}}
+#+END_SRC
+
+** TODO :template-alist property
+Default is following
+#+BEGIN_SRC lisp-data
+  :template-alist (("src/{{index}}.el" "{{index}}.el")
+                   ("src/README.md" "README.md"))
+#+END_SRC
+** TODO :libs support
+:PROPERTIES:
+:REQUIRES: :template-alist property
+:END:
+
+
 ** TODO dev/cli
+
+*** TODO user config
+
+~/.lelde or ~/.emacs.d/lelde
+
+using environment LELDE_USER_DIR
+
+**** TODO user template dir
+
+  (f-expand "template" lelde-user-dir)
+
+  lelde install user-template
+  lelde init --ignore-user-template
+
 
 *** TODO purge depending to cask
 :PROPERTIES:
