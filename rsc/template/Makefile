@@ -1,3 +1,5 @@
+#>Makefile for the package {{name}}
+#>
 EMACS      ?= emacs
 CASK       ?= {{scripts-dir}}/lcask
 
@@ -5,7 +7,6 @@ PROJECT      := {{name}}
 INDEX	     := {{index}}
 INDEX_EL     := $(INDEX).el
 TARGET	     := $(INDEX).elc
-PKG_EL       := $(INDEX)-pkg.el
 SRC_DIR      := src
 SRC_INDEX_EL := $(SRC_DIR)/$(INDEX_EL)
 META_EL      := $(SRC_DIR)/$(INDEX)/META.el
@@ -14,10 +15,7 @@ EMACS_OPTS   := --batch -Q
 
 ################################################################################
 .DEFAULT_GOAL := help
-PHONY	     := help all build clean clean-all clean-cask update\
-	test test-unit test-integration
-
-update_makefile_itself := yes
+#{{(@ENV)(lelde/project/update/util::make-phoeny-macro @ENV)}}
 
 emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
@@ -32,8 +30,6 @@ lelde_bundle = $(emacs_common) -l lelde -f lelde-bundle
 
 
 ################################################################################
-#>Makefile for {{name}}
-#>
 #>This Makefile has following .PHONY tasks.
 #>
 #>help
@@ -79,43 +75,7 @@ build:
 #>update
 #>    Update project files according to Lelde file
 #>
-update :=
-
-update := $(update) Cask
-Cask: Lelde
-	$(lelde_update) $@
-
-ifeq ($(update_makefile_itself),yes)
-update := $(update) Makefile
-Makefile: Lelde .cask
-	$(lelde_update) $@
-endif
-
-update := $(update) $(PKG_EL)
-$(PKG_EL): Lelde .cask
-	$(lelde_update) $@
-
-update := $(update) $(META_EL)
-$(META_EL): Lelde .cask
-	$(lelde_update) $@
-
-update := $(update) recipe/public/$(INDEX)
-recipe/public/$(INDEX):
-	$(lelde_update) $@
-
-update := $(update) recipe/local/$(INDEX)
-recipe/local/$(INDEX):
-	$(lelde_update) $@
-
-update := $(update) README.md
-README.md: src/README.md Lelde .cask
-	$(lelde_fill) $< $@
-
-update := $(update) $(INDEX).el
-$(INDEX).el: src/$(INDEX).bundled.el Lelde .cask
-	$(lelde_fill) $< $@
-
-update: $(update)
+#{{(@ENV) (lelde/project/update/util::update-tasks @ENV)}}
 
 
 ################################################################################

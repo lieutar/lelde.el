@@ -42,6 +42,13 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
 
   :files ("rsc/**/*")
 
+  :files-to-update ("Cask"
+                    "Makefile"
+                    )
+
+  :template-alist (("src/lelde.el" "lelde.el")
+                   ("src/README.md" "README.md"))
+
   :src-dir       "src"
   :scripts-dir   "scripts"
 
@@ -52,6 +59,6 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
   :test-unit-suffix ".unit.el"
 
   :test-scripts-dir "test/scripts"
-  :test-lib-dir     "tests/lib"
-  :test-rsc-dir     "tests/rsc"
+  :test-lib-dir     "test/lib"
+  :test-rsc-dir     "test/rsc"
   )

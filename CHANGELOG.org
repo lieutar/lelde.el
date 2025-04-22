@@ -7,7 +7,7 @@
 
 *** DONE Test: lelde/test
 
-*** TODO Test: lelde/project
+*** DONE Test: lelde/project
 
 *** TODO Test: lelde/modules
 

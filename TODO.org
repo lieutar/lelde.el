@@ -2,6 +2,17 @@
 
 Following TODO list items will move on CHANGELOG.org and apply in the future.
 
+** TODO pluginize
+
+Divide following components:
+
+  - lelde-core
+    - lelde-cli
+  - lelde-tinplate
+  - lelde-elconc
+  - lelde-stmax
+  - lelde-test
+
 ** TODO dev/pages
 
 Setting to GitHub Pages of this project. ( Apparently Wiki is more suitable ? )
@@ -37,7 +48,6 @@ Default is following
 :PROPERTIES:
 :REQUIRES: :template-alist property
 :END:
-
 
 ** TODO dev/cli
 

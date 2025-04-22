@@ -35,7 +35,7 @@
     result))
 
 (defsubst lelde/project/modules::modules-alist--collect-dependencies (project
-                                                                    result)
+                                                                      result)
   (dolist (slot result)
     (let* ((plist   (cdr slot))
            (depends (lelde/project/modules::get-dependencies-from-file
@@ -113,18 +113,20 @@ parsing techniques may be necessary."
     (-map 'cadr (--filter (and (listp it) (eq 'quote (car it))) result))))
 
 (defun lelde/project/modules::get-modules-alist (project-root)
-  (let* ((pinfo   (lelde/project::get-project-info project-root))
-         (project (plist-get pinfo :index))
-         (base    (plist-get pinfo :src-path))
-         (all    (lelde/project/modules::modules-alist--collect-from-fs project
-                                                                      base))
-         (result (lelde/project/modules::modules-alist--mearge-duplicated all)))
-    (lelde/project/modules::modules-alist--collect-dependencies project result)
-    (lelde/project/modules::modules-alist--add-depended-by      result)
-    (lelde/project/modules::modules-alist--add-all-depended-by  result)
-    (--filter
-     (or (eq index (car it))
-         (memq index (plist-get (cdr it) :all-depended-by)))
-     (sort result (lambda (a b)
-                    (< (length (plist-get (cdr a) :all-depended-by))
-                       (length (plist-get (cdr b) :all-depended-by))))))))
+  ""
+  (let* ((pinfo  (lelde/project::get-project-info project-root))
+         (index  (plist-get pinfo :index)))
+    (when (stringp index) (setq index (intern index)))
+    (let* ((base   (plist-get pinfo :src-path))
+           (all    (lelde/project/modules::modules-alist--collect-from-fs index
+                                                                          base))
+          (result (lelde/project/modules::modules-alist--mearge-duplicated all)))
+      (lelde/project/modules::modules-alist--collect-dependencies index result)
+      (lelde/project/modules::modules-alist--add-depended-by      result)
+      (lelde/project/modules::modules-alist--add-all-depended-by  result)
+      (--filter
+       (or (eq index (car it))
+           (memq index (plist-get (cdr it) :all-depended-by)))
+       (sort result (lambda (a b)
+                      (> (length (plist-get (cdr a) :all-depended-by))
+                         (length (plist-get (cdr b) :all-depended-by)))))))))

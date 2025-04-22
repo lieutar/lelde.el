@@ -29,6 +29,12 @@
           :brief                   ""
           :commentary              ""
           :files                   nil
+          :files-to-update        (list "Makefile"
+                                        "Cask"
+                                        (format "recipe/%s" index))
+          :template-alist         (list (list (format "src/%s.el" index)
+                                              (format "%s.el" index))
+                                        (list "src/README.md" "README.md"))
           :copyright               copyright
           :author                  author
           :emacs                   emacs-version
@@ -40,6 +46,7 @@
           :test-runner             ""
           :src-dir                 "src"
           :rsc-dir                 "rsc"
+          :recipe-dir              "recipe"
           :scripts-dir             "scripts"
           :test-integration-suffix ".test.el"
           :test-unit-suffix        ".unit.el"
@@ -90,6 +97,8 @@ The information has following properties.
   :brief (string) - Short description of the module.
   :commentary (string) - Long description of the module.
   :files (list<string>) - List of file globs of resource files.
+  :files-to-update (list<string>)
+  :template-alist (list<list<string string>>)
   :copyright (string) -
   :author (string) -
   :emacs (string) - Emacs version to require .
@@ -101,6 +110,9 @@ The information has following properties.
          Defaults to \"src\".
          If provided, it will be expanded relative to the project root.
   :src-path (string) - The realpath of the :src-dir.
+
+  :recipe-dir (string)
+  :recipe-path (string)
 
   :scripts-dir (string)
   :scripts-path (string)
@@ -129,14 +141,13 @@ The information has following properties.
 "
   (let ((project-root (lelde/project::find-project-root path)))
     (let ((cfg (lelde/project::read-project-config project-root)))
-      (plist-put cfg :src-path
-                 (f-expand (plist-get cfg :src-dir) project-root))
-      (plist-put cfg :scripts-path
-                 (f-expand (plist-get cfg :scripts-dir) project-root))
-      (plist-put cfg :test-scripts-path
-                 (f-expand (plist-get cfg :test-scripts-dir) project-root))
-      (plist-put cfg :test-lib-path
-                 (f-expand (plist-get cfg :test-lib-dir) project-root))
-      (plist-put cfg :test-rsc-path
-                 (f-expand (plist-get cfg :test-rsc-dir) project-root))
+      (dolist (dir2path '(src
+                          recipe
+                          scripts
+                          test-scripts
+                          test-lib
+                          test-rsc))
+        (let ((dir  (intern (format ":%s-dir"  dir2path)))
+              (path (intern (format ":%s-path" dir2path))))
+          (plist-put cfg path (f-expand (plist-get cfg dir) project-root))))
       cfg)))

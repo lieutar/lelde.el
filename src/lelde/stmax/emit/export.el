@@ -8,16 +8,18 @@
 
 ;;;; lelde/stmax/emit/export
 
+;;(s-match "[^[:space:]\n\r]" "\n")
 (defun lelde/stmax/emit/export::parse-arg (src)
   (let ((arg-sexp (and (s-match "[^[:space:]\n\r]" src)
                        (read src))))
-    (unless (and (listp arg-sexp)
-                 (eq (car arg-sexp) 'interactive))
+    (when (and arg-sexp
+               (not (and(listp arg-sexp)
+                        (eq (car arg-sexp) 'interactive))))
       (error ";;!export macro accepts only (interactive) form."))
     arg-sexp))
 
 (defsubst lelde/stmax/emit/export::--export-as (symbol)
-  (intern (s-replace-regexp "\\`\\([^/]+\\).*?::" "\\1-"
+  (intern (s-replace-regexp "\\`\\([^/]+\\).*?::\\$?" "\\1-"
                             (symbol-name symbol))))
 
 (defun lelde/stmax/emit/export::parse-sexp--defvar   (sexp arg)
@@ -59,8 +61,8 @@
            `(defun ,export-as ,arg-list
               ,@(and (stringp doc-or-first-sexp) (list doc-or-first-sexp))
               ,arg
-              ,(lelde/stmax/emit/export::delegating-form name arg-list)))
-       `(defalias ',export-as ',name)))))
+              ,(lelde/stmax/emit/export::delegating-form name arg-list))
+       `(defalias ',export-as ',name))))))
 
 (defun lelde/stmax/emit/export::parse-sexp (src arg)
   (unless (s-match "\\`[[:space:]\n\r]*(" "\n  \n(")
@@ -97,11 +99,11 @@
 (defun lelde/stmax/emit/export::aggregate-exporting-information (project-spec)
   (let* ((project-root (plist-get project-spec :project-path))
          (src-path     (plist-get project-spec :src-path))
-         (files        (--map
-                        (let ((plist (cdr it)))
-                          (or (plist-get plist :el)
-                              (plist-get plist :src)))
-                        (lelde/modules/alist::get project-root)))
+         (files (--map
+                 (let ((plist (cdr it)))
+                   (or (plist-get plist :el)
+                       (plist-get plist :src)))
+                 (lelde/project/modules::get-modules-alist project-root)))
          (result (list :result)))
     (dolist (file files)
       (nconc result (lelde/stmax/emit/export::--parse-file file)))
@@ -109,13 +111,12 @@
 
 ;;!export
 (defun lelde/stmax/emit::emit-export (project-spec)
-  (s-join "\n"
-          (-flatten
-           (-map (list ";;;###autoload"
-                       (ppp-sexp-to-string
-                        (plist-get it :export-form)))
-                 (lelde/stmax/emit/export::aggregate-exporting-information
-                  project-spec)))))
+  (s-join
+   "\n"
+   (->> (lelde/stmax/emit/export::aggregate-exporting-information project-spec)
+        (--map (list ";;;###autoload"
+                     (ppp-sexp-to-string (plist-get it :export-form))))
+        -flatten)))
 
 (add-hook 'lelde/stmax/emit::$emit-for-index-functions
           #'lelde/stmax/emit/export::emit-export)

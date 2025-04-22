@@ -8,7 +8,7 @@
 (require 'dash)
 (require 'ppp)
 
-(defconst lelde-test/project/init::$num-files 17)
+(defconst lelde-test/project/init::$num-files 16)
 
 (describe "lelde/project/init"
   (let ((name-to-index
@@ -41,8 +41,7 @@
           (should (assoc "./Lelde" content))
           (should (assoc "./Makefile" content))
           (should (assoc "./custom.mk" content))
-          (should (assoc (format "./recipe/local/%s" index) content))
-          (should (assoc (format "./recipe/public/%s" index) content))
+          (should (assoc (format "./recipe/%s" index) content))
           (should (assoc "./scripts/lcask" content))
           (should (assoc "./scripts/test" content))
           (should (assoc "./scripts/truncate" content))

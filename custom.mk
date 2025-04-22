@@ -1,7 +1,7 @@
 #PHONY := $(PHONY) your-additional-phonytasks
 
 # following section is special to lelde's bootstrap development
-update_makefile_itself = no
+# update_makefile_itself = no
 lelde_init   = $(emacs_common) -l lelde/project/init\
 			       -f lelde/project/init::init-project
 lelde_update = $(emacs_common) -l lelde/project/update\

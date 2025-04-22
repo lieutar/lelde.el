@@ -11,6 +11,6 @@
 ;; for example following setting:
 ;;
 ;; :test-feature "-l buttercup"
-;; :test-runner  "-f buttercup-run"
+;; :test-runner  "--eval '(describe \"\")' -f buttercup-run"
 ;;
-;; it can activate using buttercup with `ert'
+;; it can activate `buttercup' additionally.

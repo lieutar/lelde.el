@@ -1,3 +1,5 @@
+#>Makefile for the package lelde.el
+#>
 EMACS      ?= emacs
 CASK       ?= scripts/lcask
 
@@ -5,7 +7,6 @@ PROJECT      := lelde.el
 INDEX	     := lelde
 INDEX_EL     := $(INDEX).el
 TARGET	     := $(INDEX).elc
-PKG_EL       := $(INDEX)-pkg.el
 SRC_DIR      := src
 SRC_INDEX_EL := $(SRC_DIR)/$(INDEX_EL)
 META_EL      := $(SRC_DIR)/$(INDEX)/META.el
@@ -14,10 +15,8 @@ EMACS_OPTS   := --batch -Q
 
 ################################################################################
 .DEFAULT_GOAL := help
-PHONY	     := help all build clean clean-all clean-cask update\
-	test test-unit test-integration
-
-update_makefile_itself := yes
+#
+PHONY := help all build clean clean-all clean-cask update Makefile-itself	test test-unit test-integration
 
 emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
@@ -32,8 +31,6 @@ lelde_bundle = $(emacs_common) -l lelde -f lelde-bundle
 
 
 ################################################################################
-#>Makefile for lelde.el
-#>
 #>This Makefile has following .PHONY tasks.
 #>
 #>help
@@ -79,43 +76,29 @@ build:
 #>update
 #>    Update project files according to Lelde file
 #>
+#
 update :=
 
 update := $(update) Cask
 Cask: Lelde
 	$(lelde_update) $@
 
-ifeq ($(update_makefile_itself),yes)
-update := $(update) Makefile
-Makefile: Lelde .cask
-	$(lelde_update) $@
-endif
-
-update := $(update) $(PKG_EL)
-$(PKG_EL): Lelde .cask
-	$(lelde_update) $@
-
-update := $(update) $(META_EL)
-$(META_EL): Lelde .cask
-	$(lelde_update) $@
-
-update := $(update) recipe/public/$(INDEX)
-recipe/public/$(INDEX):
-	$(lelde_update) $@
-
-update := $(update) recipe/local/$(INDEX)
-recipe/local/$(INDEX):
-	$(lelde_update) $@
+update := $(update) lelde.el
+lelde.el: Lelde src/lelde.el
+	$(lelde_fill) $< $@
 
 update := $(update) README.md
-README.md: src/README.md Lelde .cask
+README.md: Lelde src/README.md
 	$(lelde_fill) $< $@
 
-update := $(update) $(INDEX).el
-$(INDEX).el: src/$(INDEX).bundled.el Lelde .cask
-	$(lelde_fill) $< $@
+#>Makefile-itself
+#>    Update Makefile itself.
+#>
+Makefile-itself:
+	$(lelde_update) Makefile
 
-update: $(update)
+update: $(update) Makefile-itself
+
 
 
 ################################################################################
