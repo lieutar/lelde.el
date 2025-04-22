@@ -1,6 +1,6 @@
 ;; -*- lexical-binding: t -*-
 (require 'buttercup)
-(require 'lelde/bundle)
+(require 'lelde/elconc)
 
-(describe "lelde/bundle"
+(describe "lelde/elconc"
   )

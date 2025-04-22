@@ -5,13 +5,15 @@ CASK       ?= {{scripts-dir}}/lcask
 
 PROJECT      := {{name}}
 INDEX	     := {{index}}
-INDEX_EL     := $(INDEX).el
-TARGET	     := $(INDEX).elc
-SRC_DIR      := src
+SRC_DIR      := {{src-dir}}
 SRC_INDEX_EL := $(SRC_DIR)/$(INDEX_EL)
 META_EL      := $(SRC_DIR)/$(INDEX)/META.el
 SUBMOD_DIR   := $(SRC_DIR)/$(INDEX)
 EMACS_OPTS   := --batch -Q
+
+INDEX_EL      := $(INDEX).el
+TARGET	      := $(INDEX).elc
+INDEX_BUNDLED := $(SRC_DIR)/$(INDEX).el
 
 ################################################################################
 .DEFAULT_GOAL := help
@@ -20,8 +22,8 @@ EMACS_OPTS   := --batch -Q
 emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 lelde_update = $(emacs_common) -l lelde -f lelde-update-project-files
-lelde_fill   = $(emacs_common) -l lelde -f lelde-fill
-lelde_bundle = $(emacs_common) -l lelde -f lelde-bundle
+lelde_fill   = $(emacs_common) -l lelde -f lelde-tinplate-fill
+lelde_bundle = $(emacs_common) -l lelde -f lelde-elconc-bundle
 
 # You can modify by custom.mk
 -include custom.mk
@@ -52,7 +54,9 @@ all: build
 #>    Build the {{index}}.elc.
 #>
 
-src/$(INDEX).bundled.el: src/$(INDEX).el Lelde .cask
+$(INDEX_EL): $(INDEX_BUNDLED)
+
+$(INDEX_BUNDLED): $(SRC_DIR)/$(INDEX).el Lelde .cask
 	$(lelde_bundle) $< $@
 
 .cask: Cask

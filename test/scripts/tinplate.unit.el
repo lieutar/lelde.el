@@ -1,3 +1,3 @@
 ;; -*- lexical-binding: t -*-
 (require 'buttercup)
-(require 'lelde/bundle)
+(require 'lelde/tinplate)

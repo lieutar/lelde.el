@@ -5,7 +5,8 @@
 (require 'lelde/cli)
 ;;!end
 
+;;;; lelde/tinplate
 ;;!export
-(defun lelde/fill::fill ()
+(defun lelde/tinplate::fill ()
   (lelde/cli::init)
   )

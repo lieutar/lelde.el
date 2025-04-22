@@ -1,5 +1,4 @@
 ;; -*- lexical-binding: t -*-
-
 ;;!drop-when-bundled
 (provide 'lelde/stmax/emit)
 (require 'lelde/META)

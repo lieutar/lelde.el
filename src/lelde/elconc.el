@@ -6,9 +6,9 @@
 (require 'lelde/cli)
 ;;!end
 
-;;;; lelde/bundle
+;;;; lelde/elconc
 
 ;;!export
-(defun lelde/bundle::bundle ()
+(defun lelde/elconc::bundle ()
   (lelde/cli::init)
   )
