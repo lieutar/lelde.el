@@ -93,7 +93,7 @@
                       (f-join (cdr (assoc "recipe-dir" @ENV)) index))
               errors))
       (when files
-        (nconc recipe (list :files files)))
+        (nconc recipe (list :files (cons (format "%s.el" index) files))))
       (if errors (s-join "\n" errors)
         (ppp-sexp-to-string recipe))))
   )

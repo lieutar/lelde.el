@@ -39,7 +39,7 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
                   slash-tmp
                   with-advice )
 
-  :files ("rsc/**/*")
+  :files ("rsc")
 
   :files-to-update ( "Cask"
                      "Makefile"
