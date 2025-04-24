@@ -9,17 +9,17 @@
 
  :copyright "2025 lieutar <lieutar@gmail.com>"
  :author    "lieutar <lieutar@gmail.com>"
- :keywords  ("Emacs-Lisp" "Programming" "Develop")
+ :keywords  ("lisp" "Programming" "Develop")
  :url       "https://github.com/lieutar/lelde"
  :license "This project is licensed under the GNU General Public License v3.
 see: https://www.gnu.org/licenses/gpl-3.0.html"
 
  :commentary "`lelde' provides following solutions.
 
+  - template feature ( by `tinplate' )
   - meta-programing using static macros ( by `stmax' )
   - module bundling ( by `elconc' )
   - test environment building
-  - module reloading by development sources
 "
  :sources (gnu
            melpa
@@ -46,7 +46,7 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
                     "Makefile"
                     )
 
-  :template-alist (("src/lelde.el" "lelde.el")
+  :template-alist (("src/lelde.bundled.el" "lelde.el")
                    ("src/README.md" "README.md"))
 
   :src-dir       "src"

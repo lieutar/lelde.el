@@ -110,7 +110,7 @@
     (cdr result)))
 
 ;;!export
-(defun lelde/stmax/emit::emit-export (project-spec)
+(defun lelde/stmax/emit/export::emit-export (project-spec)
   (s-join
    "\n"
    (->> (lelde/stmax/emit/export::aggregate-exporting-information project-spec)

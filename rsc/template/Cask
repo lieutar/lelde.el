@@ -1,9 +1,9 @@
 ;; -*- lisp-data -*-
 ;; This Cask file was generated from the Lelde file by `lelde'
-{{(sources)(lelde/project/update/util::Cask-sources sources)}}
+{{(sources)(lelde/tinplate/util::Cask-sources sources)}}
 
-{{(dependency)(lelde/project/update/util::Cask-depends-on dependency "")}}
+{{(dependency)(lelde/tinplate/util::Cask-depends-on dependency "")}}
 
 (development
 {{(dev-dependency)
-  (lelde/project/update/util::Cask-depends-on dev-dependency "  ")}})
+  (lelde/tinplate/util::Cask-depends-on dev-dependency "  ")}})

@@ -5,24 +5,28 @@ CASK       ?= scripts/lcask
 
 PROJECT      := lelde.el
 INDEX	     := lelde
-INDEX_EL     := $(INDEX).el
-TARGET	     := $(INDEX).elc
 SRC_DIR      := src
 SRC_INDEX_EL := $(SRC_DIR)/$(INDEX_EL)
 META_EL      := $(SRC_DIR)/$(INDEX)/META.el
 SUBMOD_DIR   := $(SRC_DIR)/$(INDEX)
 EMACS_OPTS   := --batch -Q
 
+INDEX_EL      := $(INDEX).el
+TARGET	      := $(INDEX).elc
+INDEX_BUNDLED := $(SRC_DIR)/$(INDEX).bundled.el
+
 ################################################################################
 .DEFAULT_GOAL := help
 #
-PHONY := help all build clean clean-all clean-cask update Makefile-itself	test test-unit test-integration
+PHONY := help all build package clean clean-all clean-cask update Makefile-itself\
+	test test-unit test-integration
 
 emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 lelde_update = $(emacs_common) -l lelde -f lelde-update-project-files
-lelde_fill   = $(emacs_common) -l lelde -f lelde-fill
-lelde_bundle = $(emacs_common) -l lelde -f lelde-bundle
+lelde_fill   = $(emacs_common) -l lelde -f lelde-tinplate-fill
+lelde_bundle = $(emacs_common) -l lelde -f lelde-elconc-bundle
+lelde_stmax  = $(emacc_common) -l lelde -f lelde-stmax-file
 
 # You can modify by custom.mk
 -include custom.mk
@@ -42,33 +46,43 @@ help:
 
 ################################################################################
 #>all
-#>    synonym to 'build'.
+#>    synonym to 'package'.
 #>
 
-all: build
+all: package
 
 
 ################################################################################
-#>build
-#>    Build the lelde.elc.
+#>package
+#>    Build package to be able to distribute.
 #>
-
-src/$(INDEX).bundled.el: src/$(INDEX).el Lelde .cask
-	$(lelde_bundle) $< $@
 
 .cask: Cask
 	make clean-cask
 	$(CASK) install
 
+$(INDEX_EL): $(INDEX_BUNDLED)
+
+$(INDEX_BUNDLED): $(SRC_DIR)/$(INDEX).el .cask
+	$(lelde_bundle) $< $@
+
 %.el: %.src.el .cask
-	$(emacs_common) -l smex -f smex-file
+	$(lelde_stmax) $<
 
 %.elc: %.el .cask
 	$(emacs_common) --eval "(setq byte-compile-error-on-warn t)"\
 		-f batch-byte-compile $<
 
-build:
+package:
 	make update
+	make $(INDEX_EL)
+
+################################################################################
+#>build
+#>    Build the lelde.elc.
+#>
+
+build: package
 	make $(TARGET)
 
 
@@ -84,11 +98,11 @@ Cask: Lelde
 	$(lelde_update) $@
 
 update := $(update) lelde.el
-lelde.el: Lelde src/lelde.el
+lelde.el: src/lelde.bundled.el Lelde
 	$(lelde_fill) $< $@
 
 update := $(update) README.md
-README.md: Lelde src/README.md
+README.md: src/README.md Lelde
 	$(lelde_fill) $< $@
 
 #>Makefile-itself
@@ -106,7 +120,10 @@ update: $(update) Makefile-itself
 #>    Remove built files.
 #>
 clean:
-	test -f "$(TARGET)" && rm $(TARGET)
+	test -f $(TARGET) && rm $(TARGET) || true
+	test -f $(INDEX_EL) && rm $(INDEX_EL) || true
+	test -f $(SRC_DIR)/$(INDEX_EL) && rm $(SRC_DIR)/$(INDEX_EL) || true
+	test -f $(INDEX_BUNDLED) && rm $(INDEX_BUNDLED) || true
 
 #>clean-all
 #>    Remove all generated files.

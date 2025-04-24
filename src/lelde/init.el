@@ -5,7 +5,7 @@
 ;;!end
 
 ;;;; lelde/init
-
+;;!export
 (defvar lelde/init::$init-hook nil)
 
 ;;!export (interactive)

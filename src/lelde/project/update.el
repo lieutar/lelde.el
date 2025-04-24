@@ -1,11 +1,11 @@
 ;; -*- lexical-binding: t -*-
 ;;!drop-when-bundled
 (provide 'lelde/project/update)
-(require 'lelde/project/update/util)
 (require 'lelde/META)
 (require 'lelde/cli)
 (require 'lelde/rsc)
 (require 'lelde/project)
+(require 'lelde/tinplate)
 (require 'lelde/stmax/emit)
 ;;!end
 
@@ -36,16 +36,6 @@
                    it)
              templates))))
 
-(defsubst lelde/project/update::update-file--make-env (pinfo)
-  (let* ((env-slot '("@ENV"))
-         (env       (list env-slot)))
-    (dolist (kwd (-filter #'keywordp pinfo))
-      (let ((key   (s-replace-regexp "\\`:" "" (symbol-name kwd)))
-            (value (plist-get pinfo kwd)))
-        (push (cons key value) env)))
-    (setcdr env-slot env)
-    env))
-
 (defun lelde/project/update::update-file (file &optional base)
   (setq base (or base "template"))
   (let* ((pinfo     (lelde/project::get-project-info "."))
@@ -56,13 +46,10 @@
          (template  (let ((slot (assoc file t-alist)))
                       (unless slot
                         (error "Undefined way to update of \"%s\"." file))
-                      (lelde/rsc::get-rsc (f-join base (cdr slot)))))
-         (env        (lelde/project/update::update-file--make-env pinfo)))
+                      (lelde/rsc::get-rsc (f-join base (cdr slot))))))
     (let ((dir (f-dirname (f-expand file pp))))
       (unless (f-dir-p dir) (apply #'f-mkdir (f-split dir))))
-    (with-temp-file (f-expand file pp)
-      (insert (tinplate-fill template  env))
-      (message "Update: %s" file))))
+    (lelde/tinplate::fill pinfo template (f-expand file pp))))
 
 ;;(lelde/project/update::update-file "Cask")
 ;;(lelde/project/update::update-file "Makefile")

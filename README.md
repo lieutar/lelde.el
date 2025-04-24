@@ -1,12 +1,18 @@
 # Lelde
 
-{{brief}}
+Live Emacs Lisp Development Environment
 
-{{(commentary)(s-replace-regexp "\\(`[^']+\\)'" "\\1`" commentary)}}
+`lelde` provides following solutions.
+
+  - template feature ( by `tinplate` )
+  - meta-programing using static macros ( by `stmax` )
+  - module bundling ( by `elconc` )
+  - test environment building
+
 
 ## VERSION
 
-{{version}}
+0.1.0
 
 ## Requirements
 
@@ -42,8 +48,9 @@ curl -fsSL https://raw.githubusercontent.com/lieutar/lelde/main/init.sh > ~/bin/
 
 ## AUTHOR
 
-{{author}}
+lieutar <lieutar@gmail.com>
 
 ## LICENSE
 
-{{license}}
+This project is licensed under the GNU General Public License v3.
+see: https://www.gnu.org/licenses/gpl-3.0.html

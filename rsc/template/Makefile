@@ -13,17 +13,18 @@ EMACS_OPTS   := --batch -Q
 
 INDEX_EL      := $(INDEX).el
 TARGET	      := $(INDEX).elc
-INDEX_BUNDLED := $(SRC_DIR)/$(INDEX).el
+INDEX_BUNDLED := $(SRC_DIR)/$(INDEX).bundled.el
 
 ################################################################################
 .DEFAULT_GOAL := help
-#{{(@ENV)(lelde/project/update/util::make-phoeny-macro @ENV)}}
+#{{(@ENV)(lelde/tinplate/util::make-phoeny-macro @ENV)}}
 
 emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 lelde_update = $(emacs_common) -l lelde -f lelde-update-project-files
 lelde_fill   = $(emacs_common) -l lelde -f lelde-tinplate-fill
 lelde_bundle = $(emacs_common) -l lelde -f lelde-elconc-bundle
+lelde_stmax  = $(emacc_common) -l lelde -f lelde-stmax-file
 
 # You can modify by custom.mk
 -include custom.mk
@@ -43,35 +44,43 @@ help:
 
 ################################################################################
 #>all
-#>    synonym to 'build'.
+#>    synonym to 'package'.
 #>
 
-all: build
+all: package
 
 
 ################################################################################
-#>build
-#>    Build the {{index}}.elc.
+#>package
+#>    Build package to be able to distribute.
 #>
-
-$(INDEX_EL): $(INDEX_BUNDLED)
-
-$(INDEX_BUNDLED): $(SRC_DIR)/$(INDEX).el Lelde .cask
-	$(lelde_bundle) $< $@
 
 .cask: Cask
 	make clean-cask
 	$(CASK) install
 
+$(INDEX_EL): $(INDEX_BUNDLED)
+
+$(INDEX_BUNDLED): $(SRC_DIR)/$(INDEX).el .cask
+	$(lelde_bundle) $< $@
+
 %.el: %.src.el .cask
-	$(emacs_common) -l smex -f smex-file
+	$(lelde_stmax) $<
 
 %.elc: %.el .cask
 	$(emacs_common) --eval "(setq byte-compile-error-on-warn t)"\
 		-f batch-byte-compile $<
 
-build:
+package:
 	make update
+	make $(INDEX_EL)
+
+################################################################################
+#>build
+#>    Build the {{index}}.elc.
+#>
+
+build: package
 	make $(TARGET)
 
 
@@ -79,7 +88,7 @@ build:
 #>update
 #>    Update project files according to Lelde file
 #>
-#{{(@ENV) (lelde/project/update/util::update-tasks @ENV)}}
+#{{(@ENV) (lelde/tinplate/util::update-tasks @ENV)}}
 
 
 ################################################################################
@@ -87,7 +96,10 @@ build:
 #>    Remove built files.
 #>
 clean:
-	test -f "$(TARGET)" && rm $(TARGET)
+	test -f $(TARGET) && rm $(TARGET) || true
+	test -f $(INDEX_EL) && rm $(INDEX_EL) || true
+	test -f $(SRC_DIR)/$(INDEX_EL) && rm $(SRC_DIR)/$(INDEX_EL) || true
+	test -f $(INDEX_BUNDLED) && rm $(INDEX_BUNDLED) || true
 
 #>clean-all
 #>    Remove all generated files.

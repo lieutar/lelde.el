@@ -18,7 +18,7 @@
                     "{{src-dir}}/{{index}}/META.el"
                     "{{recipe-dir}}/{{index}}")
  :template-alist (("{{src-dir}}/README.md" "README.md")
-                  ("{{src-dir}}/{{index}}.el" "{{index}}.el"))
+                  ("{{src-dir}}/{{index}}.bundled.el" "{{index}}.el"))
  :license "This project is licensed under the GNU General Public License v3.
 See: https://www.gnu.org/licenses/gpl-3.0.html"
  :sources   (gnu

@@ -8,4 +8,4 @@
 
 ;;; If you don't use remote package archive comment out or remove
 ;;  following settings.
-{{(sources)(lelde/project/update/util::Cask-sources sources)}}
+{{(sources)(lelde/tinplate/util::Cask-sources sources)}}

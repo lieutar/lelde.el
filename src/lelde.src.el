@@ -5,7 +5,7 @@
 
 ;; Author: {{author}}
 ;; Version: {{version}}
-;; Keywords: {{(keywords) (s-join ", " keywourds)}}
+;; Keywords: {{(keywords) (s-join ", " keywords)}}
 ;; URL: {{url}}
 
 ;;; License:
@@ -14,7 +14,7 @@
 
 ;;; Commentary:
 ;;
-;; {{(description) (lelde/smac::smac-el-comment description t)}}
+;; {{(commentary) (s-replace "\n" "\n;; " commentary)}}
 ;;
 ;;  About deteils of this, see: README.md
 ;;
@@ -23,20 +23,15 @@
 
 ;;!drop-when-bundled
 (require 'lelde/META)
-(require 'lelde/customize)
-
 (require 'lelde/project/init)   ;; cli
 (require 'lelde/project/update) ;; cli
-(require 'lelde/fill)           ;; cli (with tinplate)
-(require 'lelde/bundle)         ;; cli (with elconc)
-(require 'lelde/stmax/emit)     ;; utils (with stmax)
-
-(require 'lelde/test) ;; test helper
-(require 'lelde/dpac) ;; development package manager
+(require 'lelde/tinplate)       ;; cli (with tinplate)
+(require 'lelde/elconc)         ;; cli (with elconc)
+(require 'lelde/stmax)          ;; cli (with stmax)
+(require 'lelde/test)           ;; test helper
 ;;!end
-;;!bundle
+;;!insert-bundled
 ;;!static-macro
 (lelde/stmax/emit::emit-for-index)
 
-(lelde/init::init)
 (provide 'lelde)

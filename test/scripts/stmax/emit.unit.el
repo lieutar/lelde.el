@@ -7,7 +7,7 @@
 (require 'f)
 (lelde/test::setup-test-environment $T)
 
-(describe "lelde/stmax/emit::emit-export"
+(describe "lelde/stmax/emit/export::emit-export"
   (let (project-dir-was-created
         git-was-initialized
         pinfo
@@ -23,7 +23,7 @@
         (setq git-was-initialized (f-dir-p ".git"))
         (when git-was-initialized
           (setq pinfo (lelde/project::get-project-info "."))
-          (setq code (lelde/stmax/emit::emit-export pinfo))))))
+          (setq code (lelde/stmax/emit/export::emit-export pinfo))))))
   (it "basic assertions"
     (should project-dir-was-created)
     (should git-was-initialized))

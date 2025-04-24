@@ -6,7 +6,7 @@
 ;; Version: {{version}}
 ;; Keywords: {{(keywords) (s-join ", " keywords)}}
 ;; URL: {{url}}
-;; Package-Requires: {{(depends)(lelde/project/update/util::index-pr)}}
+;; Package-Requires: {{(depends)(lelde/tinplate/util::index-pr)}}
 
 ;;; License:
 

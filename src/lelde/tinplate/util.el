@@ -1,13 +1,13 @@
 ;; -*- lexical-binding: t -*-
 
 ;;!drop-when-bundled
-(provide 'lelde/project/update/util)
+(provide 'lelde/tinplate/util)
 (require 'lelde/META)
 ;;!end
 
-;;;; lelde/project/update/util
+;;;; lelde/tinplate/util
 
-(defun lelde/project/update/util::Cask-depends-on (dependency indent)
+(defun lelde/tinplate/util::Cask-depends-on (dependency indent)
   (s-replace-regexp
    "^" indent
    (mapconcat
@@ -16,8 +16,7 @@
             (plist (cdr it))
             (type  (plist-get plist :type)))
        (cond ((eq type 'core)
-              (format ";; %s (core)\n" pkg)
-              )
+              (format ";; %s (core)\n" pkg))
              ((eq type 'elpa)
               (ppp-sexp-to-string
                `(depends-on ,(symbol-name pkg) ,(plist-get plist :version))))
@@ -30,7 +29,7 @@
        ))
    dependency)))
 
-(defun lelde/project/update/util::index-pr (depends)
+(defun lelde/tinplate/util::index-pr (depends)
   (let* ((warnings nil)
          (pr-list (mapconcat
                    (lambda (it)
@@ -56,10 +55,10 @@
 " (s-join ", " warnings)) ""))))
 
 
-(defconst lelde/project/update/util::$Cask-additional-source
+(defconst lelde/tinplate/util::$Cask-additional-source
   `())
 
-(defun lelde/project/update/util::Cask-sources (sources)
+(defun lelde/tinplate/util::Cask-sources (sources)
   (mapconcat
    (lambda (it)
      (ppp-sexp-to-string
@@ -67,9 +66,9 @@
         (list 'source it))))
    sources))
 
-;; (lelde/project/update/util::Cask-sources '(gnu melpa))
+;; (lelde/tinplate/util::Cask-sources '(gnu melpa))
 
-(defun lelde/project/update/util::recipe (@ENV)
+(defun lelde/tinplate/util::recipe (@ENV)
   (let ((index   (cdr (assoc "index"   @ENV)))
         (url     (cdr (assoc "url"     @ENV)))
         (repo    (cdr (assoc "repo"    @ENV)))
@@ -96,16 +95,16 @@
       (if errors (s-join "\n" errors)
         (ppp-sexp-to-string recipe)))))
 
-(defun lelde/project/update/util::make-phoeny-macro (@ENV)
+(defun lelde/tinplate/util::make-phoeny-macro (@ENV)
   (let ((files-to-update (cdr (assoc "files-to-update" @ENV))))
     (format
      "
-PHONY := help all build clean clean-all clean-cask update%s\\
+PHONY := help all build package clean clean-all clean-cask update%s\\
 	test test-unit test-integration"
      (if (member "Makefile" files-to-update)
          " Makefile-itself" ""))))
 
-(defun lelde/project/update/util::update-tasks (@ENV)
+(defun lelde/tinplate/util::update-tasks (@ENV)
   (let ((files-to-update (cdr (assoc "files-to-update" @ENV)))
         (template-alist  (cdr (assoc "template-alist" @ENV))))
     (concat
@@ -124,7 +123,7 @@ update := $(update) %s
                         (dst (cadr pair)))
                     (format "
 update := $(update) %s
-%s: Lelde %s
+%s: %s Lelde
 \t$(lelde_fill) $< $@
 "
                             dst dst src)))
