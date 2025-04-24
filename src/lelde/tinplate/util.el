@@ -74,7 +74,7 @@
         (repo    (cdr (assoc "repo"    @ENV)))
         (files   (cdr (assoc "files"   @ENV)))
         (errors  nil))
-    (let ((recipe (list index)))
+    (let ((recipe (list (intern index))))
       (when (and (stringp url) (null repo)) (setq repo url))
       (if repo
         (cond
