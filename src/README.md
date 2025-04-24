@@ -16,14 +16,20 @@ Lelde requires `make` and `cask` now.
 ## Start your project with Lelde
 
 ``` bash
+mkdir new-project
+cd new-project
 curl -fsSL https://raw.githubusercontent.com/lieutar/lelde.el/refs/heads/main/init.sh | bash
 
 ```
 
-or install:
+or with installing:
 
 ``` bash
 curl -fsSL https://raw.githubusercontent.com/lieutar/lelde.el/refs/heads/main/init.sh > ~/bin/lelde-init
+chmod +x ~/bin/lelde-init
+mkdir new-project
+cd new-project
+lelde-init
 
 ```
 
