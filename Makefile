@@ -97,6 +97,10 @@ update := $(update) Cask
 Cask: Lelde
 	$(lelde_update) $@
 
+update := $(update) recipe/lelde
+recipe/lelde: Lelde
+	$(lelde_update) $@
+
 update := $(update) lelde.el
 lelde.el: src/lelde.bundled.el Lelde
 	$(lelde_fill) $< $@

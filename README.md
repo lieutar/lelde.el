@@ -9,7 +9,6 @@ Live Emacs Lisp Development Environment
   - module bundling ( by `elconc` )
   - test environment building
 
-
 ## VERSION
 
 0.1.0

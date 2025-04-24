@@ -79,7 +79,7 @@
       (if repo
         (cond
          ((string-match "\\`https://\\(github\\|gitlab\\)\\.com/\\(.+\\)" repo)
-          (nconc recipe (list:fetcher (intern (match-string 1 repo))
+          (nconc recipe (list :fetcher (intern (match-string 1 repo))
                                       :repo    (match-string 2 repo)))))
         (push (format "
 ;; WARNING THIS PROJECT DOESN'T HAVE THE DEFINITION OF THE REPOSITORY.
@@ -92,8 +92,11 @@
 "
                       (f-join (cdr (assoc "recipe-dir" @ENV)) index))
               errors))
+      (when files
+        (nconc recipe (list :files files)))
       (if errors (s-join "\n" errors)
-        (ppp-sexp-to-string recipe)))))
+        (ppp-sexp-to-string recipe))))
+  )
 
 (defun lelde/tinplate/util::make-phoeny-macro (@ENV)
   (let ((files-to-update (cdr (assoc "files-to-update" @ENV))))

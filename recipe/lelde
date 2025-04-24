@@ -1,0 +1,3 @@
+("lelde" :fetcher github :repo "lieutar/lelde.el" :files
+ ("rsc/**/*"))
+

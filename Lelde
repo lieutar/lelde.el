@@ -10,7 +10,7 @@
  :copyright "2025 lieutar <lieutar@gmail.com>"
  :author    "lieutar <lieutar@gmail.com>"
  :keywords  ("lisp" "Programming" "Develop")
- :url       "https://github.com/lieutar/lelde"
+ :url       "https://github.com/lieutar/lelde.el"
  :license "This project is licensed under the GNU General Public License v3.
 see: https://www.gnu.org/licenses/gpl-3.0.html"
 
@@ -19,8 +19,7 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
   - template feature ( by `tinplate' )
   - meta-programing using static macros ( by `stmax' )
   - module bundling ( by `elconc' )
-  - test environment building
-"
+  - test environment building"
  :sources (gnu
            melpa
            ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
@@ -42,9 +41,9 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
 
   :files ("rsc/**/*")
 
-  :files-to-update ("Cask"
-                    "Makefile"
-                    )
+  :files-to-update ( "Cask"
+                     "Makefile"
+                     "recipe/lelde" )
 
   :template-alist (("src/lelde.bundled.el" "lelde.el")
                    ("src/README.md" "README.md"))
