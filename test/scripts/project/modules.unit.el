@@ -6,7 +6,7 @@
 (require 'lelde/test)
 (require 'slash-tmp)
 
-(lelde/test::setup-test-environment $T)
+(lelde/test::test-setup)
 
 (describe "lelde/project/modules"
   (let (
@@ -16,7 +16,7 @@
         )
   (/tmp/with-temp-dir
     (/tmp/weird-magic-spell)
-    (lelde/test/util::test-rsc-copy $T "project--modules/p0000")
+    (lelde/test::test-call rsc-copy "project--modules/p0000")
     (setq dir-was-generated (f-dir-p "p0000"))
     (when dir-was-generated
       (let ((default-directory (f-expand "p0000")))

@@ -1,0 +1,63 @@
+;; -*- lisp-data -*-
+(lelde-project
+ :name    "lelde.el"
+ :version "0.1.0"
+ :emacs   "29.3"
+ :index   "lelde"
+
+ :brief  "Live Emacs Lisp Development Environment"
+
+ :copyright "2025 lieutar <lieutar@gmail.com>"
+ :author    "lieutar <lieutar@gmail.com>"
+ :keywords  ("lisp" "Programming" "Develop")
+ :url       "https://github.com/lieutar/lelde.el"
+ :license "This project is licensed under the GNU General Public License v3.
+see: https://www.gnu.org/licenses/gpl-3.0.html"
+
+ :commentary "`lelde' provides following solutions.
+
+  - template feature ( by `tinplate' )
+  - meta-programing using static macros ( by `stmax' )
+  - module bundling ( by `elconc' )
+  - test environment building"
+ :sources (gnu
+           melpa
+           ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
+
+ :dependency (f
+              s
+              dash
+              ppp
+              package   ;; core
+              cl-lib    ;; core
+              prinfo
+              stmax
+              elconc
+              tinplate
+              )
+ :dev-dependency (buttercup
+                  slash-tmp
+                  with-advice )
+
+  :files ("rsc")
+
+  :files-to-update ( "Cask"
+                     "Makefile"
+                     "recipe/lelde" )
+
+  :template-alist (("src/lelde.bundled.el" "lelde.el")
+                   ("src/README.md" "README.md"))
+
+  :src-dir       "src"
+  :scripts-dir   "scripts"
+
+  :test-feature "-l buttercup"
+  :test-runner  "--eval '(describe \"\")' -f buttercup-run"
+
+  :test-integration-suffix ".test.el"
+  :test-unit-suffix ".unit.el"
+
+  :test-scripts-dir "test/scripts"
+  :test-lib-dir     "test/lib"
+  :test-rsc-dir     "test/rsc"
+  )

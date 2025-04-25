@@ -51,16 +51,16 @@ The plist contains the following information:
                                      ;; default prefix list
                                      '(lelde/test/util::test-))
                                  (--map (intern (concat (symbol-name it)
-                                                        (symbol-name ',func))))
+                                                        (symbol-name func))))
                                  (-find #'fboundp))
-                            ',func)))
-     (funcall func-to-call (lelde/test::test-spec) ,@args)))
+                            func)))
+     (,func-to-call (lelde/test::test-spec) ,@args)))
 
 ;;!export
 (defmacro lelde/test::test-setup (&rest additional-props)
-  `(let* ((file     (or load-file-name buffer-file-name))
-          (new-spec (append (lelde/test::make-test-spec file)
-                            ,@additional-props)))
+  `(let* ((file (or load-file-name buffer-file-name))
+          ((new-spec (append (lelde/test::make-test-spec file)
+                             additional-props))))
      (lelde/test::--setup-test-environment new-spec)
      (push  (cons file new-spec) lelde/test::$test-enviroments-alist)))
 
