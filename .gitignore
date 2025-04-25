@@ -7,6 +7,7 @@ bootstrap-dev-init.el
 local-config.el
 local-lelde-config.el
 Cask.local
+scripts/release
 # BEGIN lelde managed
 src/lelde.el
 src/lelde.bundled.el

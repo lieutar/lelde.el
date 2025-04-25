@@ -69,21 +69,24 @@
 
 (defsubst lelde/project/modules::modules-alist--add-all-depended-by (result)
   (let ((visited (make-hash-table :test 'eq)))
-    (cl-labels ((collect-dependencies (mod)
+    (letrec ((collect-dependencies
+              (lambda (mod)
+                (let* ((slot (assq mod result))
+                       (plist (cdr slot)))
                   (unless (gethash mod visited)
                     (puthash mod t visited)
-                    (let* ((slot (assq mod result))
-                           (plist (cdr slot))
-                           (direct-deps (plist-get plist :depended-by))
+                    (let* ((direct-deps (plist-get plist :depended-by))
                            (all-deps direct-deps))
                       (dolist (dep direct-deps)
-                        (setq all-deps (append all-deps (collect-dependencies
-                                                         dep))))
+                        (setq all-deps
+                              (append all-deps
+                                      (funcall collect-dependencies dep))))
                       (plist-put plist :all-depended-by (delete-dups all-deps))
-                      all-deps))))
+                      all-deps))
+                  (plist-get plist :all-depended-by)))))
       (dolist (slot result)
         (let ((mod (car slot)))
-          (collect-dependencies mod))))))
+          (funcall collect-dependencies mod))))))
 
 (defun lelde/project/modules::get-dependencies-from-file (file)
   "Get a list of dependencies from FILE by searching for `require` forms.

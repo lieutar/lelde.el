@@ -12,5 +12,7 @@
     (lelde/project/modules::modules-alist--add-all-depended-by mods)
     (describe (ppp-sexp-to-string mods))
     (it "d"
-      (should (equal (sort (plist-get (cdr (assq 'd mods)) :all-depended-by) sort-cb)
-                     (sort '(a b c) sort-cb))))))
+      (should (equal (sort (plist-get (cdr (assq 'd mods)) :all-depended-by)
+                           sort-cb)
+                     (sort '(a b c)
+                           sort-cb))))))
