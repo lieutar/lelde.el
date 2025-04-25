@@ -1,25 +1,5 @@
-;; -*- lexical-binding: t -*-
-;;; {{index}}.el --- {{description-brief}}
-
-;; {{copyright}}
-
-;; Author: {{author}}
-;; Version: {{version}}
-;; Keywords: {{(keywords) (s-join ", " keywords)}}
-;; URL: {{url}}
-
-;;; License:
-
-;; {{lincense}}
-
-;;; Commentary:
-;;
-;; {{(commentary) (s-replace "\n" "\n;; " commentary)}}
-;;
-;;  About deteils of this, see: README.md
-;;
-
-;;; Code:
+;;!static-macro
+(lelde/stmax/emit::emit-index-header)
 
 ;;!drop-when-bundled
 (require 'lelde/META)

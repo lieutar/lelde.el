@@ -1,4 +1,3 @@
-;; -*- lexical-binding: t -*-
 {{()(lelde/stmax/emit::emit-index-header)}}
 
 ;;; Code:

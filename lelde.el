@@ -1,16 +1,17 @@
-;; -*- lexical-binding: t -*-
-;;; lelde.el --- nil
+;;; lelde.el --- Live Emacs Lisp Development Environment -*-lexical-binding: t -*-
 
-;; 2025 lieutar <lieutar@gmail.com>
+;; Copyright (C) 2025 lieutar <lieutar@gmail.com>
 
 ;; Author: lieutar <lieutar@gmail.com>
 ;; Version: 0.1.0
 ;; Keywords: lisp, Programming, Develop
 ;; URL: https://github.com/lieutar/lelde.el
+;; Package-Requires: ((f)(s)(dash)(ppp)(prinfo)(stmax)(elconc)(tinplate))
 
 ;;; License:
 
-;; nil
+;; This project is licensed under the GNU General Public License v3.
+;; see: https://www.gnu.org/licenses/gpl-3.0.html
 
 ;;; Commentary:
 ;;
@@ -25,6 +26,7 @@
 ;;
 
 ;;; Code:
+
 
 
 ;;;; lelde/META
@@ -453,6 +455,37 @@ The plist contains the following information:
                (f-dir-p path))
       (setq load-path (cons path load-path)))))
 
+(defconst lelde/test::$test-enviroments-alist ())
+(defun lelde/test::--registered-test-spec (file)
+  (let ((spec (or (cdr (assoc file lelde/test::$test-enviroments-alist)))))
+    (unless spec (error "`lelde/test-setup' wasn't called"))
+    spec))
+
+;;!export
+(defmacro lelde/test::test-spec ()
+  `(lelde/test::--registered-test-spec (or load-file-name buffer-file-name)))
+
+;;!export
+(defmacro lelde/test::test-call (func &rest args)
+  `(let* ((file     (or load-file-name buffer-file-name))
+          (spec     (lelde/test::--registered-test-spec file))
+          (func-to-call (or (->> (or (plist-get spec :prefix)
+                                     ;; default prefix list
+                                     '(lelde/test/util::test-))
+                                 (--map (intern (concat (symbol-name it)
+                                                        (symbol-name func))))
+                                 (-find #'fboundp))
+                            func)))
+     (,func-to-call (lelde/test::test-spec) ,@args)))
+
+;;!export
+(defmacro lelde/test::test-setup (&rest additional-props)
+  `(let* ((file (or load-file-name buffer-file-name))
+          ((new-spec (append (lelde/test::make-test-spec file)
+                             additional-props))))
+     (lelde/test::--setup-test-environment new-spec)
+     (push  (cons file new-spec) lelde/test::$test-enviroments-alist)))
+
 ;;!export
 (defmacro lelde/test::setup-test-environment (&optional var)
   "Sets up your test environment and returns informations of your tests.
@@ -491,6 +524,15 @@ for example:
 
 ;;;###autoload
 (defalias 'lelde-stmax-file 'lelde/stmax::stmax-file)
+
+;;;###autoload
+(defalias 'lelde-test-spec 'lelde/test::test-spec)
+
+;;;###autoload
+(defalias 'lelde-test-call 'lelde/test::test-call)
+
+;;;###autoload
+(defalias 'lelde-test-setup 'lelde/test::test-setup)
 
 ;;;###autoload
 (defalias 'lelde-setup-test-environment 'lelde/test::setup-test-environment)

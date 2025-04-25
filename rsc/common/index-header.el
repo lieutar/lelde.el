@@ -1,4 +1,4 @@
-;;; {{index}}.el --- {{brief}}
+;;; {{index}}.el --- {{brief}} -*-lexical-binding: t -*-
 
 ;; Copyright (C) {{copyright}}
 
@@ -6,7 +6,7 @@
 ;; Version: {{version}}
 ;; Keywords: {{(keywords) (s-join ", " keywords)}}
 ;; URL: {{url}}
-;; Package-Requires: {{(depends)(lelde/tinplate/util::index-pr)}}
+;; Package-Requires: {{(dependency)(lelde/tinplate/util::index-pr dependency)}}
 
 ;;; License:
 
@@ -14,7 +14,8 @@
 
 ;;; Commentary:
 ;;
-;; {{(commentary) (s-replace "\n" "\n;; " commentary)}}
+;; {{(commentary) (s-replace "[[:space:]]+$" "" (s-replace "\n" "
+;; " commentary))}}
 ;;
 ;;  About deteils of this, see: README.md
 ;;

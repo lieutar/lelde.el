@@ -33,6 +33,37 @@ The plist contains the following information:
                (f-dir-p path))
       (setq load-path (cons path load-path)))))
 
+(defconst lelde/test::$test-enviroments-alist ())
+(defun lelde/test::--registered-test-spec (file)
+  (let ((spec (or (cdr (assoc file lelde/test::$test-enviroments-alist)))))
+    (unless spec (error "`lelde/test-setup' wasn't called"))
+    spec))
+
+;;!export
+(defmacro lelde/test::test-spec ()
+  `(lelde/test::--registered-test-spec (or load-file-name buffer-file-name)))
+
+;;!export
+(defmacro lelde/test::test-call (func &rest args)
+  `(let* ((file     (or load-file-name buffer-file-name))
+          (spec     (lelde/test::--registered-test-spec file))
+          (func-to-call (or (->> (or (plist-get spec :prefix)
+                                     ;; default prefix list
+                                     '(lelde/test/util::test-))
+                                 (--map (intern (concat (symbol-name it)
+                                                        (symbol-name func))))
+                                 (-find #'fboundp))
+                            func)))
+     (,func-to-call (lelde/test::test-spec) ,@args)))
+
+;;!export
+(defmacro lelde/test::test-setup (&rest additional-props)
+  `(let* ((file (or load-file-name buffer-file-name))
+          ((new-spec (append (lelde/test::make-test-spec file)
+                             additional-props))))
+     (lelde/test::--setup-test-environment new-spec)
+     (push  (cons file new-spec) lelde/test::$test-enviroments-alist)))
+
 ;;!export
 (defmacro lelde/test::setup-test-environment (&optional var)
   "Sets up your test environment and returns informations of your tests.
