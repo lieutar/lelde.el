@@ -363,7 +363,7 @@ The information has following properties.
 
 
 ;;; lelde/project/init
-
+;;!export
 (defun lelde/project/init::init-project ()
   ""
   (unless (prinfo/git::is-valid-dot-git-p ".git")
@@ -397,8 +397,6 @@ The information has following properties.
         (let ((file (f-expand f scripts-dir)))
           (when (f-file-p file) (chmod file #o755)))))
     ))
-
-;;(let((default-directory"~/work/emacs/elminfo.el"))(lelde/project/init::init-project))
 
 
 ;;;; lelde/elconc
@@ -518,6 +516,9 @@ for example:
 
 ;;;###autoload
 (defalias 'lelde-update-project-files 'lelde/project/update::update-project-files)
+
+;;;###autoload
+(defalias 'lelde-init-project 'lelde/project/init::init-project)
 
 ;;;###autoload
 (defalias 'lelde-elconc-bundle 'lelde/elconc::elconc-bundle)

@@ -1,5 +1,4 @@
 ;; -*- lexical-binding: t -*-
-
 ;;!drop-when-bundled
 (provide 'lelde/project/init)
 (require 'lelde/META)
@@ -9,7 +8,7 @@
 ;;!end
 
 ;;; lelde/project/init
-
+;;!export
 (defun lelde/project/init::init-project ()
   ""
   (unless (prinfo/git::is-valid-dot-git-p ".git")
@@ -43,5 +42,3 @@
         (let ((file (f-expand f scripts-dir)))
           (when (f-file-p file) (chmod file #o755)))))
     ))
-
-;;(let((default-directory"~/work/emacs/elminfo.el"))(lelde/project/init::init-project))
