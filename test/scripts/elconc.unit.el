@@ -34,7 +34,10 @@
     (it "basic assertions"
       (should resource-was-copied)
       (should git-initialized))
-    (describe (ppp-sexp-to-string (assq 'lelde/cli mods)))
+    (describe (ppp-sexp-to-string (assq 'lelde/project/update mods)))
+    (describe (ppp-sexp-to-string (assq 'lelde/project/init mods)))
     (it "mod-alist"
-      (should (assq 'lelde/cli mods)))
+      (should (assq 'lelde/cli mods-filtered))
+      (should (assq 'lelde/project/update mods-filtered))
+      )
     ))

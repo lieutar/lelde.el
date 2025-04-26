@@ -68,25 +68,26 @@
             ))))))
 
 (defsubst lelde/project/modules::modules-alist--add-all-depended-by (result)
-  (let ((visited (make-hash-table :test 'eq)))
-    (letrec ((collect-dependencies
-              (lambda (mod)
-                (let* ((slot (assq mod result))
-                       (plist (cdr slot)))
-                  (unless (gethash mod visited)
-                    (puthash mod t visited)
-                    (let* ((direct-deps (plist-get plist :depended-by))
-                           (all-deps direct-deps))
-                      (dolist (dep direct-deps)
-                        (setq all-deps
-                              (append all-deps
-                                      (funcall collect-dependencies dep))))
-                      (plist-put plist :all-depended-by (delete-dups all-deps))
-                      all-deps))
-                  (plist-get plist :all-depended-by)))))
-      (dolist (slot result)
-        (let ((mod (car slot)))
-          (funcall collect-dependencies mod))))))
+  (letrec ((collect-dependencies
+            (lambda (mod)
+              (let* ((slot (assq mod result))
+                     (plist (cdr slot)))
+                (unless (memq :all-depended-by plist)
+                  (when (plist-get plist :in-progress)
+                    (error ":in-progress %s" mod))
+                  (plist-put plist :in-progress t)
+                  (let* ((direct-deps (plist-get plist :depended-by))
+                         (all-deps (copy-sequence direct-deps)))
+                    (dolist (dep direct-deps)
+                      (setq all-deps
+                            (append all-deps
+                                    (funcall collect-dependencies dep))))
+                    (plist-put plist :all-depended-by (delete-dups all-deps))
+                    (plist-put plist :in-progress nil)))
+                (plist-get plist :all-depended-by)))))
+    (dolist (slot result)
+      (let ((mod (car slot)))
+        (funcall collect-dependencies mod)))))
 
 (defun lelde/project/modules::get-dependencies-from-file (file)
   "Get a list of dependencies from FILE by searching for `require` forms.
