@@ -6,8 +6,6 @@
 
 ;;;; lelde/META
 
-(defconst lelde-VERSION "0.1.0")
-
 (require 'f)
 (require 's)
 (require 'dash)
