@@ -89,6 +89,7 @@
       (let ((mod (car slot)))
         (funcall collect-dependencies mod)))))
 
+
 (defun lelde/project/modules::get-dependencies-from-file (file)
   "Get a list of dependencies from FILE by searching for `require` forms.
 

@@ -17,11 +17,44 @@
                      (sort '(a b c)
                            sort-cb))))))
 
-(describe "case 02"
+(describe "lelde/project/modules::modules-alist--add-all-depended-by case 02"
   (let ((mods '(
                 (root :depended-by nil)
-                (p-i  :depended-by (root))
-                (p-u  :depended-by (p-i lelde))
+                (p-i  :depended-by nil)
+                (p-u  :depended-by (p-i root))
+                (_e   :depended-by (S p-u))
+                (S    :depended-by (root))
+                ))
+        (sort-cb (lambda (a b) (string< (symbol-name a)(symbol-name b)))))
+    (lelde/project/modules::modules-alist--add-all-depended-by mods)
+    (describe (ppp-sexp-to-string mods))
+    (it "check result"
+      (should (memq 'root (plist-get (cdr (assq 'p-u mods)) :all-depended-by)))
+      )
+    ))
+
+(describe "lelde/project/modules::modules-alist--add-all-depended-by case 03"
+  (let ((mods '(
+                (root :depended-by nil)
+                (p-i  :depended-by nil)
+                (p-u  :depended-by (p-i root))
+                (_e   :depended-by (p-u S))
+                (S    :depended-by (root))
+                ))
+        (sort-cb (lambda (a b) (string< (symbol-name a)(symbol-name b)))))
+    (lelde/project/modules::modules-alist--add-all-depended-by mods)
+    (describe (ppp-sexp-to-string mods))
+    (it "check result"
+      (should (memq 'root (plist-get (cdr (assq 'p-u mods)) :all-depended-by)))
+      )
+    ))
+
+
+(describe "lelde/project/modules::modules-alist--add-all-depended-by case 04"
+  (let ((mods '(
+                (root :depended-by nil)
+                (p-i  :depended-by nil)
+                (p-u  :depended-by (p-i root))
                 (_e   :depended-by (S p-u))
                 (S    :depended-by (root))
                 ))
