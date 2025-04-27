@@ -53,43 +53,6 @@
       (plist-put plist :depends-internal internal)
       (plist-put plist :depends-external external))))
 
-(defsubst lelde/project/modules::modules-alist--add-depended-by (result)
-  (dolist (slot result)
-    (let* ((mod   (car slot))
-           (plist (cdr slot)))
-      (dolist (dep (plist-get plist :depends-internal))
-        (let ((depslot (assq dep result)))
-          (if (null depslot)
-              (warn "`%s' is depending to `%s'.But `%s' isn't exists."
-                    mod dep dep)
-            (let* ((depplist (cdr depslot))
-                   (depended-by (plist-get depplist :depended-by)))
-              (plist-put depplist :depended-by (cons mod depended-by)))
-            ))))))
-
-(defsubst lelde/project/modules::modules-alist--add-all-depended-by (result)
-  (letrec ((collect-dependencies
-            (lambda (mod)
-              (let* ((slot (assq mod result))
-                     (plist (cdr slot)))
-                (unless (memq :all-depended-by plist)
-                  (when (plist-get plist :in-progress)
-                    (error ":in-progress %s" mod))
-                  (plist-put plist :in-progress t)
-                  (let* ((direct-deps (plist-get plist :depended-by))
-                         (all-deps (copy-sequence direct-deps)))
-                    (dolist (dep direct-deps)
-                      (setq all-deps
-                            (append all-deps
-                                    (funcall collect-dependencies dep))))
-                    (plist-put plist :all-depended-by (delete-dups all-deps))
-                    (plist-put plist :in-progress nil)))
-                (plist-get plist :all-depended-by)))))
-    (dolist (slot result)
-      (let ((mod (car slot)))
-        (funcall collect-dependencies mod)))))
-
-
 (defun lelde/project/modules::get-dependencies-from-file (file)
   "Get a list of dependencies from FILE by searching for `require` forms.
 
@@ -127,11 +90,25 @@ parsing techniques may be necessary."
                                                                           base))
           (result (lelde/project/modules::modules-alist--mearge-duplicated all)))
       (lelde/project/modules::modules-alist--collect-dependencies index result)
-      (lelde/project/modules::modules-alist--add-depended-by      result)
-      (lelde/project/modules::modules-alist--add-all-depended-by  result)
-      (--filter
-       (or (eq index (car it))
-           (memq index (plist-get (cdr it) :all-depended-by)))
-       (sort result (lambda (a b)
-                      (> (length (plist-get (cdr a) :all-depended-by))
-                         (length (plist-get (cdr b) :all-depended-by)))))))))
+      result)))
+
+(defun lelde/project/modules::query-internal-dependencies (mods feature)
+  (letrec ((recurse
+            (lambda (feature current-path)
+              (when (memq feature current-path)
+                (error "Cycled dependencies: %s > %s"
+                       (s-join " > " (-map 'symbol-name (reverse current-path)))
+                       feature))
+              (push feature current-path)
+              (let* ((slot  (assq feature mods))
+                     (plist (cdr slot))
+                     (deps  (plist-get plist :depends-internal)))
+                (let ((results
+                       (->> deps
+                            (-map (lambda (dep)
+                                    (append (funcall recurse dep current-path)
+                                            (list dep))))
+                            -flatten)))
+                  (pop current-path)
+                  results)))))
+    (--map (assq it mods) (delete-dups (funcall recurse feature nil)))))

@@ -4,49 +4,33 @@
 (require 'f)
 (require 'lelde/project/modules)
 (require 'lelde/test)
-(require 'slash-tmp)
 
 (lelde/test::test-setup)
+(require 'lelde-test)
 
 (describe "lelde/project/modules"
   (let (
-        dir-was-generated
-        git-initialized
-        modules-alist
+        mods
+        slot
         )
-  (/tmp/with-temp-dir
-    (/tmp/weird-magic-spell)
-    (lelde/test::test-call rsc-copy "project--modules/p0000")
-    (setq dir-was-generated (f-dir-p "p0000"))
-    (when dir-was-generated
-      (let ((default-directory (f-expand "p0000")))
-        (call-process-shell-command "git init" nil nil nil)
-        (setq git-initialized (f-dir-p ".git"))
-        (when git-initialized
-          (setq modules-alist
-                (lelde/project/modules::get-modules-alist "."))))))
+    (lelde-test/with-repos "project--modules/p0000"
+      (setq mods
+            (lelde/project/modules::get-modules-alist ".")))
+    ;;(describe (ppp-sexp-to-string mods))
+    (it "got modules alist"
+      (should (eq 6 (length mods)))
+      (should (assq 'p0000 mods))
+      (should (assq 'p0000/META mods))
+      (should (assq 'p0000/core mods))
+      (should (assq 'p0000/core/isolated mods))
+      (should (assq 'p0000/core/sub-b mods))
+      (should (assq 'p0000/core/sub mods)))
 
-  (it "basic assertions"
-    (should dir-was-generated)
-    (should git-initialized)
-    (should modules-alist))
-
-  (let ((mod-order (-map #'car modules-alist))
-        (external-dependency (apply #'append
-                                    (--map (plist-get (cdr it) :depends-external)
-                                           modules-alist)))
-        (ss (lambda (it) (format "%S" (sort it (lambda (a b)
-                                                 (string< (symbol-name a)
-                                                          (symbol-name b))))))))
-    (describe (format "%S" mod-order))
-    (it "content of the alist"
-      (should (string= (format "%S" mod-order)
-                       (format "%S" '(p0000/META
-                                      p0000/core/sub-b
-                                      p0000/core/sub
-                                      p0000/core
-                                      p0000))))
-      (should (string= (funcall ss external-dependency)
-                       (funcall ss '(dash s f))))
-      ))
-  ))
+    (it "query"
+      (let ((result (lelde/project/modules::query-internal-dependencies
+                     mods 'p0000)))
+        (should (equal (-map 'car result)
+                       '(p0000/META
+                         p0000/core/sub-b p0000/core/sub p0000/core)))
+        ))
+    ))

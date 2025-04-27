@@ -6,39 +6,36 @@
 (require 'f)
 
 (lelde/test::test-setup)
+(require 'lelde-test)
 
 (describe "lelde/elconc"
-  (let (resource-was-copied
-        git-initialized
-        all
-        mods
-        mods-filtered
+  (let (
+        content
         )
-    (/tmp/with-temp-dir
-      (/tmp/weird-magic-spell)
-      (lelde/test::test-call rsc-copy "elconc/lelde.el.pss")
-      (setq resource-was-copied (f-dir-p "lelde.el.pss"))
-      (when resource-was-copied
-        (let ((default-directory (f-expand "lelde.el.pss")))
-          (call-process "git" nil nil nil "init")
-          (setq git-initialized (f-dir-p ".git"))
-          (when git-initialized
-            (setq all (lelde/project/modules::modules-alist--collect-from-fs
-                       'lelde "src"))
-            (setq mods (lelde/project/modules::modules-alist--mearge-duplicated all))
-            (lelde/project/modules::modules-alist--collect-dependencies 'lelde mods)
-            (lelde/project/modules::modules-alist--add-depended-by      mods)
-            (lelde/project/modules::modules-alist--add-all-depended-by  mods)
-            (setq mods-filtered (lelde/project/modules::get-modules-alist "."))
-            ))))
-    (it "basic assertions"
-      (should resource-was-copied)
-      (should git-initialized))
-    (describe (ppp-sexp-to-string (--map (list (car it) :depended-by (plist-get (cdr it) :depended-by)) mods)))
-    ;; (describe (ppp-sexp-to-string (assq 'lelde/project/update mods)))
-    ;; (describe (ppp-sexp-to-string (assq 'lelde/project/init mods)))
-    (it "mod-alist"
-      (should (assq 'lelde/cli mods-filtered))
-      (should (assq 'lelde/project/update mods-filtered))
+    (lelde-test/with-repos "elconc/lelde.el.pss"
+      (lelde/elconc::bundle "src/lelde.el" "lelde.el")
+      (setq content (f-read "lelde.el"))
       )
+
+    (describe content)
+    (it "mod-alist"
+      (with-temp-buffer
+        (insert content)
+        (dolist (f '(  lelde/META
+                        lelde/project/depends
+                        lelde/project
+                        lelde/rsc
+                        lelde/cli
+                        lelde/tinplate/util
+                        lelde/tinplate
+                        lelde/project/modules
+                        lelde/stmax/emit/export
+                        lelde/stmax/emit
+                        lelde/project/update
+                        lelde/project/init
+                        lelde/elconc
+                        lelde/stmax ))
+          (goto-char (point-min))
+          (should (re-search-forward (format "^;;+[[:space:]]*%s" f) nil t))
+        )))
     ))

@@ -18,7 +18,6 @@
                                                  (f-relative src src-path))))
          (depends      (lelde/project/modules::query-internal-dependencies
                         mods src-feature)))
-
     (with-temp-file dst
       (insert (apply 'elconc-bundled-source
                      src

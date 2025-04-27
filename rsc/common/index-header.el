@@ -14,8 +14,8 @@
 
 ;;; Commentary:
 ;;
-;; {{(commentary) (s-replace "[[:space:]]+$" "" (s-replace "\n" "
-;; " commentary))}}
+;; {{(commentary) (s-replace "[[:space:]]+\\(\n\\|\\'\\)" "\\1" (s-replace "\n" "
+;; " (s-replace "\\`[[:space:]\n]+" "" commentary)))}}
 ;;
 ;;  About deteils of this, see: README.md
 ;;

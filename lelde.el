@@ -251,134 +251,18 @@ The information has following properties.
       cfg)))
 
 
-;;;; lelde/project/modules
+;;;; lelde/rsc
 
-(defsubst lelde/project/modules::modules-alist--collect-from-fs (project base)
-  (let ((files nil))
-    (dolist (fmt '("%s.el" "%s.src.el"))
-      (let ((file (f-expand (format fmt project) base)))
-        (when (f-exists-p file)(setq files (cons file files)))))
-    (dolist (file (directory-files-recursively
-                     (f-expand (symbol-name project) base)
-                     "\\.el\\'"))
-      (when (not (s-match "\\`\\.?#" (f-base file)))
-        (setq files (cons file files))))
+(defconst lelde/rsc::$resource-path
+  (f-expand "rsc" (f-dirname (or load-file-name buffer-file-name))))
+(defun lelde/rsc::get-rsc-file-list (base)
+  (let ((base-path (f-expand base lelde/rsc::$resource-path)))
     (--map
-     (list
-      (intern (s-replace-regexp "\\(?:\\.src\\)?\\.el\\'" ""
-                                (f-relative it base)))
-      (if (s-match "\\.src\\.el\\'" it) :src :el) it)
-     files)))
+     (f-relative it base-path)
+     (directory-files-recursively base-path ""))))
 
-(defsubst lelde/project/modules::modules-alist--mearge-duplicated (all)
-  (let ((result nil))
-    (dolist (slot all)
-      (let* ((feature (car slot))
-             (previous-slot (assq feature result)))
-        (if previous-slot
-            (nconc previous-slot (cdr slot))
-          (setq result (cons slot result)))))
-    result))
-
-(defsubst lelde/project/modules::modules-alist--collect-dependencies (project
-                                                                      result)
-  (dolist (slot result)
-    (let* ((plist   (cdr slot))
-           (depends (lelde/project/modules::get-dependencies-from-file
-                     (or (plist-get (cdr slot) :src)
-                         (plist-get (cdr slot) :el))))
-           (internalp (lambda (sym)
-                        (s-match (format "\\`%s\\(?:/.*\\)?\\'"
-                                         project)
-                                 (symbol-name sym))))
-           internal external)
-      (dolist (mod depends)
-        (if (funcall internalp mod)
-            (setq internal (cons mod internal))
-          (setq external (cons mod external))))
-      (plist-put plist :depends-internal internal)
-      (plist-put plist :depends-external external))))
-
-(defsubst lelde/project/modules::modules-alist--add-depended-by (result)
-  (dolist (slot result)
-    (let* ((mod   (car slot))
-           (plist (cdr slot)))
-      (dolist (dep (plist-get plist :depends-internal))
-        (let ((depslot (assq dep result)))
-          (if (null depslot)
-              (warn "`%s' is depending to `%s'.But `%s' isn't exists."
-                    mod dep dep)
-            (let* ((depplist (cdr depslot))
-                   (depended-by (plist-get depplist :depended-by)))
-              (plist-put depplist :depended-by (cons mod depended-by)))
-            ))))))
-
-(defsubst lelde/project/modules::modules-alist--add-all-depended-by (result)
-  (let ((visited (make-hash-table :test 'eq)))
-    (letrec ((collect-dependencies
-              (lambda (mod)
-                (let* ((slot (assq mod result))
-                       (plist (cdr slot)))
-                  (unless (gethash mod visited)
-                    (puthash mod t visited)
-                    (let* ((direct-deps (plist-get plist :depended-by))
-                           (all-deps direct-deps))
-                      (dolist (dep direct-deps)
-                        (setq all-deps
-                              (append all-deps
-                                      (funcall collect-dependencies dep))))
-                      (plist-put plist :all-depended-by (delete-dups all-deps))
-                      all-deps))
-                  (plist-get plist :all-depended-by)))))
-      (dolist (slot result)
-        (let ((mod (car slot)))
-          (funcall collect-dependencies mod))))))
-
-(defun lelde/project/modules::get-dependencies-from-file (file)
-  "Get a list of dependencies from FILE by searching for `require` forms.
-
-This function has several limitations:
-1. It does not handle macros that may expand to `require` forms.
-2. It may incorrectly identify `require` forms in argument lists.
-3. It does not consider conditional `require` forms
-   (e.g., inside `when` or `if`).
-4. It may not handle all possible syntaxes of `require`.
-5. The argument of require have to be a quoted symbol.
-
-For accurate dependency analysis, manual inspection or more sophisticated
-parsing techniques may be necessary."
-  (let* ((src (with-temp-buffer
-                (insert-file-contents file)
-                (buffer-substring-no-properties (point-min) (point-max))))
-         (read-src (ignore-errors (read (format "(\n%s\n)" src))))
-         (result nil))
-    (letrec ((recurse (lambda (tree)
-                        (when (and tree (listp tree))
-                          (if (eq 'require (car tree))
-                              (push (cadr tree) result)
-                            (dolist (node tree)
-                              (funcall recurse node)))))))
-      (funcall recurse read-src))
-    (-map 'cadr (--filter (and (listp it) (eq 'quote (car it))) result))))
-
-(defun lelde/project/modules::get-modules-alist (project-root)
-  ""
-  (let* ((pinfo  (lelde/project::get-project-info project-root))
-         (index  (plist-get pinfo :index)))
-    (when (stringp index) (setq index (intern index)))
-    (let* ((base   (plist-get pinfo :src-path))
-           (all    (lelde/project/modules::modules-alist--collect-from-fs index
-                                                                          base))
-          (result (lelde/project/modules::modules-alist--mearge-duplicated all)))
-      (lelde/project/modules::modules-alist--collect-dependencies index result)
-      (lelde/project/modules::modules-alist--add-depended-by      result)
-      (lelde/project/modules::modules-alist--add-all-depended-by  result)
-      (--filter
-       (or (eq index (car it))
-           (memq index (plist-get (cdr it) :all-depended-by)))
-       (sort result (lambda (a b)
-                      (> (length (plist-get (cdr a) :all-depended-by))
-                         (length (plist-get (cdr b) :all-depended-by)))))))))
+(defun lelde/rsc::get-rsc (name)
+  (f-read (f-expand name lelde/rsc::$resource-path)))
 
 
 ;;;; lelde/cli
@@ -404,20 +288,6 @@ parsing techniques may be necessary."
 
     (advice-add #'lelde/project::get-project-info :around
                 #'lelde/cli::get-project-info)))
-
-
-;;;; lelde/rsc
-
-(defconst lelde/rsc::$resource-path
-  (f-expand "rsc" (f-dirname (or load-file-name buffer-file-name))))
-(defun lelde/rsc::get-rsc-file-list (base)
-  (let ((base-path (f-expand base lelde/rsc::$resource-path)))
-    (--map
-     (f-relative it base-path)
-     (directory-files-recursively base-path ""))))
-
-(defun lelde/rsc::get-rsc (name)
-  (f-read (f-expand name lelde/rsc::$resource-path)))
 
 
 ;;;; lelde/tinplate/util
@@ -588,6 +458,368 @@ update: $(update)
     (lelde/tinplate::fill pinfo (f-read src) dst)))
 
 
+;;;; lelde/project/modules
+
+(defsubst lelde/project/modules::modules-alist--collect-from-fs (project base)
+  (let ((files nil))
+    (dolist (fmt '("%s.el" "%s.src.el"))
+      (let ((file (f-expand (format fmt project) base)))
+        (when (f-exists-p file)(setq files (cons file files)))))
+    (dolist (file (directory-files-recursively
+                     (f-expand (symbol-name project) base)
+                     "\\.el\\'"))
+      (when (not (s-match "\\`\\.?#" (f-base file)))
+        (setq files (cons file files))))
+    (--map
+     (list
+      (intern (s-replace-regexp "\\(?:\\.src\\)?\\.el\\'" ""
+                                (f-relative it base)))
+      (if (s-match "\\.src\\.el\\'" it) :src :el) it)
+     files)))
+
+(defsubst lelde/project/modules::modules-alist--mearge-duplicated (all)
+  (let ((result nil))
+    (dolist (slot all)
+      (let* ((feature (car slot))
+             (previous-slot (assq feature result)))
+        (if previous-slot
+            (nconc previous-slot (cdr slot))
+          (setq result (cons slot result)))))
+    result))
+
+(defsubst lelde/project/modules::modules-alist--collect-dependencies (project
+                                                                      result)
+  (dolist (slot result)
+    (let* ((plist   (cdr slot))
+           (depends (lelde/project/modules::get-dependencies-from-file
+                     (or (plist-get (cdr slot) :src)
+                         (plist-get (cdr slot) :el))))
+           (internalp (lambda (sym)
+                        (s-match (format "\\`%s\\(?:/.*\\)?\\'"
+                                         project)
+                                 (symbol-name sym))))
+           internal external)
+      (dolist (mod depends)
+        (if (funcall internalp mod)
+            (setq internal (cons mod internal))
+          (setq external (cons mod external))))
+      (plist-put plist :depends-internal internal)
+      (plist-put plist :depends-external external))))
+
+(defun lelde/project/modules::get-dependencies-from-file (file)
+  "Get a list of dependencies from FILE by searching for `require` forms.
+
+This function has several limitations:
+1. It does not handle macros that may expand to `require` forms.
+2. It may incorrectly identify `require` forms in argument lists.
+3. It does not consider conditional `require` forms
+   (e.g., inside `when` or `if`).
+4. It may not handle all possible syntaxes of `require`.
+5. The argument of require have to be a quoted symbol.
+
+For accurate dependency analysis, manual inspection or more sophisticated
+parsing techniques may be necessary."
+  (let* ((src (with-temp-buffer
+                (insert-file-contents file)
+                (buffer-substring-no-properties (point-min) (point-max))))
+         (read-src (ignore-errors (read (format "(\n%s\n)" src))))
+         (result nil))
+    (letrec ((recurse (lambda (tree)
+                        (when (and tree (listp tree))
+                          (if (eq 'require (car tree))
+                              (push (cadr tree) result)
+                            (dolist (node tree)
+                              (funcall recurse node)))))))
+      (funcall recurse read-src))
+    (-map 'cadr (--filter (and (listp it) (eq 'quote (car it))) result))))
+
+(defun lelde/project/modules::get-modules-alist (project-root)
+  ""
+  (let* ((pinfo  (lelde/project::get-project-info project-root))
+         (index  (plist-get pinfo :index)))
+    (when (stringp index) (setq index (intern index)))
+    (let* ((base   (plist-get pinfo :src-path))
+           (all    (lelde/project/modules::modules-alist--collect-from-fs index
+                                                                          base))
+          (result (lelde/project/modules::modules-alist--mearge-duplicated all)))
+      (lelde/project/modules::modules-alist--collect-dependencies index result)
+      result)))
+
+(defun lelde/project/modules::query-internal-dependencies (mods feature)
+  (letrec ((recurse
+            (lambda (feature current-path)
+              (when (memq feature current-path)
+                (error "Cycled dependencies: %s > %s"
+                       (s-join " > " (-map 'symbol-name (reverse current-path)))
+                       feature))
+              (push feature current-path)
+              (let* ((slot  (assq feature mods))
+                     (plist (cdr slot))
+                     (deps  (plist-get plist :depends-internal)))
+                (let ((results
+                       (->> deps
+                            (-map (lambda (dep)
+                                    (append (funcall recurse dep current-path)
+                                            (list dep))))
+                            -flatten)))
+                  (pop current-path)
+                  results)))))
+    (--map (assq it mods) (delete-dups (funcall recurse feature nil)))))
+
+
+;;;; lelde/stmax/emit/export
+
+;;(s-match "[^[:space:]\n\r]" "\n")
+(defun lelde/stmax/emit/export::parse-arg (src)
+  (let ((arg-sexp (and (s-match "[^[:space:]\n\r]" src)
+                       (read src))))
+    (when (and arg-sexp
+               (not (and(listp arg-sexp)
+                        (eq (car arg-sexp) 'interactive))))
+      (error ";;!export macro accepts only (interactive) form."))
+    arg-sexp))
+
+(defsubst lelde/stmax/emit/export::--export-as (symbol)
+  (intern (s-replace-regexp "\\`\\([^/]+\\).*?::\\$?" "\\1-"
+                            (symbol-name symbol))))
+
+(defun lelde/stmax/emit/export::parse-sexp--defvar   (sexp arg)
+  (when arg (error "exporting variable can't accept any args"))
+  (let* ((name      (cadr sexp))
+         (export-as (lelde/stmax/emit/export::--export-as name))
+         (export-form `(defvaralias ',export-as ',name)))
+    (list :type 'defvar
+          :symbol name :export-as export-as :export-form export-form)))
+
+(defun lelde/stmax/emit/export::parse-sexp--defconst (sexp arg)
+  (when arg (error "exporting constant can't accept any args"))
+  (let ((result (lelde/stmax/emit/export::parse-sexp--defvar sexp arg)))
+    (plist-put :type 'defconst)
+    result))
+
+(defun lelde/stmax/emit/export::parse-sexp--defmacro (sexp arg)
+  (when arg (error "exporting macro can't accept any args"))
+  (let ((result (lelde/stmax/emit/export::parse-sexp--defun sexp arg)))
+    (plist-put result :type 'defmacro)
+    result))
+
+(defsubst lelde/stmax/emit/export::delegating-form (func arg-list)
+  (let ((stripped-arg-list (--filter (not (s-match "\\`&" (symbol-name it)))
+                                     arg-list)))
+    (if (member '&rest arg-list)
+        `(apply #',func ,@stripped-arg-list)
+      `(,func ,@stripped-arg-list))))
+
+(defun lelde/stmax/emit/export::parse-sexp--defun (sexp arg)
+  (let ((name              (cadr sexp))
+        (arg-list          (caddr sexp))
+        (doc-or-first-sexp (cadddr sexp)))
+    (let* ((export-as (lelde/stmax/emit/export::--export-as name)))
+      (list
+       :type 'defun :symbol name :export-as export-as
+       :export-form
+       (if arg
+           `(defun ,export-as ,arg-list
+              ,@(and (stringp doc-or-first-sexp) (list doc-or-first-sexp))
+              ,arg
+              ,(lelde/stmax/emit/export::delegating-form name arg-list))
+       `(defalias ',export-as ',name))))))
+
+(defun lelde/stmax/emit/export::parse-sexp (src arg)
+  (unless (s-match "\\`[[:space:]\n\r]*(" "\n  \n(")
+    (error "sexp after ;;!export have to be a list without any comments"))
+  (let* ((sexp   (read src))
+         (type   (car sexp))
+         (parser (intern (format "lelde/stmax/emit/export::parse-sexp--%s"
+                                 type))))
+    (if parser (funcall parser sexp arg)
+      (error "Undefined exporting method for: %s" type))))
+
+(defsubst lelde/stmax/emit/export::--parse-file (file)
+  (let ((r-result nil))
+    (with-temp-buffer
+      (insert-file-contents file)
+      (goto-char (point-min))
+      (while (re-search-forward "^;;!export\\b" nil t)
+        (let ((arg-start (point))
+              (arg nil)
+              (sexp nil))
+          (move-beginning-of-line 2)
+          (let* ((start (point))
+                 (end (progn (condition-case nil (forward-sexp)(error))
+                             (point))))
+            (setq arg  (lelde/stmax/emit/export::parse-arg
+                        (buffer-substring-no-properties arg-start start)))
+            (setq sexp (buffer-substring-no-properties start end)))
+          (push  (append (list :src file
+                               :arg  arg)
+                         (lelde/stmax/emit/export::parse-sexp sexp arg))
+                 r-result))))
+    (reverse r-result)))
+
+(defun lelde/stmax/emit/export::aggregate-exporting-information (project-spec)
+  (let* ((project-root (plist-get project-spec :project-path))
+         (src-path     (plist-get project-spec :src-path))
+         (files (--map
+                 (let ((plist (cdr it)))
+                   (or (plist-get plist :el)
+                       (plist-get plist :src)))
+                 (lelde/project/modules::get-modules-alist project-root)))
+         (result (list :result)))
+    (dolist (file files)
+      (nconc result (lelde/stmax/emit/export::--parse-file file)))
+    (cdr result)))
+
+;;!export
+(defun lelde/stmax/emit/export::emit-export (project-spec)
+  (s-join
+   "\n"
+   (->> (lelde/stmax/emit/export::aggregate-exporting-information project-spec)
+        (--map (list ";;;###autoload"
+                     (ppp-sexp-to-string (plist-get it :export-form))))
+        -flatten)))
+
+(add-hook 'lelde/stmax/emit::$emit-for-index-functions
+          #'lelde/stmax/emit/export::emit-export)
+
+
+;;!export
+(defvar lelde/stmax/emit::$emit-for-index-functions '())
+
+;;!export
+(defun lelde/stmax/emit::emit-index-header ()
+  ""
+  (lelde/rsc::get-rsc "common/index-header.el"))
+
+;;!export
+(defmacro lelde/stmax/emit::emit-for-index ()
+  `(let ((pspec
+          (lelde/project::get-project-info stmax-current-processing-file)))
+     (mapconcat (lambda (it) (funcall it pspec))
+                lelde/stmax/emit::$emit-for-index-functions
+                "\n")))
+
+
+;;;; lelde/project/update
+
+;;!export
+(defun lelde/project/update::update-project-files ()
+  (lelde/cli::init)
+  (apply #'lelde/project/update::update-files command-line-args-left))
+
+(defun lelde/project/update::update-files (&rest files)
+  (dolist (file files)
+    (lelde/project/update::update-file file)))
+
+(defsubst lelde/project/update::update-file--make-template-alist (pinfo base)
+  (let ((index (plist-get pinfo :index)))
+    (let ((templates (lelde/rsc::get-rsc-file-list base)))
+      (--map (cons (let ((src it)
+                         (match (-map #'cadr (s-match-strings-all
+                                              "@\\([^@]*\\)@" it))))
+                     (dolist (key match)
+                       (let* ((kwd (intern (format ":%s" key)))
+                              (val (plist-get pinfo kwd)))
+                         (when (stringp val)
+                           (setq src (s-replace (format "@%s@" key)
+                                                val src)))))
+                     (s-replace "@@" "" src))
+                   it)
+             templates))))
+
+(defun lelde/project/update::update-file (file &optional base)
+  (setq base (or base "template"))
+  (let* ((pinfo     (lelde/project::get-project-info "."))
+         (pp        (plist-get pinfo :project-path))
+         (index     (plist-get pinfo :index))
+         (t-alist   (lelde/project/update::update-file--make-template-alist
+                     pinfo base))
+         (template  (let ((slot (assoc file t-alist)))
+                      (unless slot
+                        (error "Undefined way to update of \"%s\"." file))
+                      (lelde/rsc::get-rsc (f-join base (cdr slot))))))
+    (let ((dir (f-dirname (f-expand file pp))))
+      (unless (f-dir-p dir) (apply #'f-mkdir (f-split dir))))
+    (lelde/tinplate::fill pinfo template (f-expand file pp))))
+
+;;(lelde/project/update::update-file "Cask")
+;;(lelde/project/update::update-file "Makefile")
+;;(lelde/project/update::update-file "init.sh" "bootstrap")
+
+;;(insert "\n" (lelde/project/update::update-file "src/lelde.src.el"))
+;;(insert "\n" (ppp-sexp-to-string (lelde/project/update::update-file "Cask")))
+
+
+;;; lelde/project/init
+;;!export
+(defun lelde/project/init::init-project ()
+  ""
+  (unless (prinfo/git::is-valid-dot-git-p ".git")
+    (unless (zerop (shell-command "git init" nil nil))
+      (error "\"git init\" was failsed"))
+    (unless (prinfo/git::is-valid-dot-git-p ".git")
+      (error
+       "WTH? \"git init\" was success. However, there isn't valid \".git\"")))
+  (when (f-exists-p "Cask") (delete-file "Cask"))
+  (when (f-exists-p "Lelde")
+    (rename-file "Lelde" "Lelde.bak")
+    (message "Lelde is already exists. it was renamed as Lelde.bak"))
+  (lelde/cli::init)
+  (let* ((pinfo (lelde/project::get-project-info "."))
+         (index (plist-get pinfo :index))
+         (skipped nil)
+         (files
+          (cons "Lelde"
+                (->>
+                 (lelde/project/update::update-file--make-template-alist
+                  pinfo "template")
+                 (-map #'car)
+                 (--filter (not (string= "Lelde" it)))))))
+    (dolist (file files)
+      (when (f-exists-p file)
+        (rename-file file (format "%s.bak" file))
+        (message "%s is already exists. it was renamed as %s.bak" file file)))
+    (apply #'lelde/project/update::update-files files)
+    (let ((scripts-dir (plist-get pinfo :scripts-path)))
+      (dolist (f (directory-files scripts-dir))
+        (let ((file (f-expand f scripts-dir)))
+          (when (f-file-p file) (chmod file #o755)))))
+    ))
+
+
+;;;; lelde/elconc
+
+(defun lelde/elconc::bundle (src dst)
+  (setq src (expand-file-name src))
+  (let* ((pinfo        (lelde/project::get-project-info "."))
+         (mods         (lelde/project/modules::get-modules-alist "."))
+         (src-path     (plist-get pinfo :src-path))
+         (src-feature  (intern (s-replace-regexp "\\(?:\\.src\\)?\\.elc?\\'" ""
+                                                 (f-relative src src-path))))
+         (depends      (lelde/project/modules::query-internal-dependencies
+                        mods src-feature)))
+
+    (with-temp-file dst
+      (insert (apply 'elconc-bundled-source
+                     src
+                     (--map (plist-get (cdr it) :el) depends)
+                     )))))
+
+;;!export
+(defun lelde/elconc::elconc-bundle ()
+  (lelde/cli::init)
+  (let ((src (nth 0 command-line-args-left))
+        (dst (nth 1 command-line-args-left)))
+    (lelde/elconc::bundle src dst)))
+
+
+;;!export
+(defun lelde/stmax::stmax-file ()
+  (lelde/cli::init)
+  (let ((src (nth 0 command-line-args-left)))
+    (stmax-file src)))
+
+
 ;;;; lelde/test/util
 
 ;;!export
@@ -642,71 +874,6 @@ But it can be specified by OPTIONS manually."
                           (plist-get test-spec :project-path)))
         (byte-compile-error-on-warn t))
     (byte-compile-file target)))
-
-
-;;; lelde/project/init
-;;!export
-(defun lelde/project/init::init-project ()
-  ""
-  (unless (prinfo/git::is-valid-dot-git-p ".git")
-    (unless (zerop (shell-command "git init" nil nil))
-      (error "\"git init\" was failsed"))
-    (unless (prinfo/git::is-valid-dot-git-p ".git")
-      (error
-       "WTH? \"git init\" was success. However, there isn't valid \".git\"")))
-  (when (f-exists-p "Cask") (delete-file "Cask"))
-  (when (f-exists-p "Lelde")
-    (rename-file "Lelde" "Lelde.bak")
-    (message "Lelde is already exists. it was renamed as Lelde.bak"))
-  (lelde/cli::init)
-  (let* ((pinfo (lelde/project::get-project-info "."))
-         (index (plist-get pinfo :index))
-         (skipped nil)
-         (files
-          (cons "Lelde"
-                (->>
-                 (lelde/project/update::update-file--make-template-alist
-                  pinfo "template")
-                 (-map #'car)
-                 (--filter (not (string= "Lelde" it)))))))
-    (dolist (file files)
-      (when (f-exists-p file)
-        (rename-file file (format "%s.bak" file))
-        (message "%s is already exists. it was renamed as %s.bak" file file)))
-    (apply #'lelde/project/update::update-files files)
-    (let ((scripts-dir (plist-get pinfo :scripts-path)))
-      (dolist (f (directory-files scripts-dir))
-        (let ((file (f-expand f scripts-dir)))
-          (when (f-file-p file) (chmod file #o755)))))
-    ))
-
-
-;;;; lelde/elconc
-
-(defun lelde/elconc::bundle (src dst)
-  (setq src (expand-file-name src))
-  (let ((mods (lelde/project/modules::get-modules-alist ".")))
-    (with-temp-file dst
-      (insert (apply 'elconc-bundled-source
-                     src
-                     (->> mods
-                          (--map (plist-get (cdr it) :el))
-                          (--filter (not (equal it src)))
-                          ))))))
-
-;;!export
-(defun lelde/elconc::elconc-bundle ()
-  (lelde/cli::init)
-  (let ((src (nth 0 command-line-args-left))
-        (dst (nth 1 command-line-args-left)))
-    (lelde/elconc::bundle src dst)))
-
-
-;;!export
-(defun lelde/stmax::stmax-file ()
-  (lelde/cli::init)
-  (let ((src (nth 0 command-line-args-left)))
-    (stmax-file src)))
 
 
 ;;;; lelde/test
@@ -785,7 +952,22 @@ for example:
      ,(if var `(setq ,var test-spec) 'test-spec)))
 
 ;;;###autoload
-(defalias 'lelde-tinplate-fill 'lelde/tinplate::tinplate-fill)
+(defalias 'lelde-init-project 'lelde/project/init::init-project)
+
+;;;###autoload
+(defalias 'lelde-update-project-files 'lelde/project/update::update-project-files)
+
+;;;###autoload
+(defalias 'lelde-emit-export 'lelde/stmax/emit/export::emit-export)
+
+;;;###autoload
+(defvaralias 'lelde-emit-for-index-functions 'lelde/stmax/emit::$emit-for-index-functions)
+
+;;;###autoload
+(defalias 'lelde-emit-index-header 'lelde/stmax/emit::emit-index-header)
+
+;;;###autoload
+(defalias 'lelde-emit-for-index 'lelde/stmax/emit::emit-for-index)
 
 ;;;###autoload
 (defalias 'lelde-test-rsc-content 'lelde/test/util::test-rsc-content)
@@ -803,10 +985,15 @@ for example:
 (defalias 'lelde-test-byte-compile-no-warnings 'lelde/test/util::test-byte-compile-no-warnings)
 
 ;;;###autoload
-(defalias 'lelde-init-project 'lelde/project/init::init-project)
+(defalias 'lelde-elconc-bundle 'lelde/elconc::elconc-bundle)
 
 ;;;###autoload
-(defalias 'lelde-elconc-bundle 'lelde/elconc::elconc-bundle)
+(defvaralias 'lelde-init-hook 'lelde/init::$init-hook)
+
+;;;###autoload
+(defun lelde-init nil
+  (interactive)
+  (lelde/init::init))
 
 ;;;###autoload
 (defalias 'lelde-stmax-file 'lelde/stmax::stmax-file)
@@ -822,6 +1009,9 @@ for example:
 
 ;;;###autoload
 (defalias 'lelde-setup-test-environment 'lelde/test::setup-test-environment)
+
+;;;###autoload
+(defalias 'lelde-tinplate-fill 'lelde/tinplate::tinplate-fill)
 
 
 (provide 'lelde)

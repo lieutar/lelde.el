@@ -4,4 +4,4 @@
 (require 'lelde/META)
 ;;!end
 
-;;; lelde/project/depends
+;;;; lelde/project/depends
