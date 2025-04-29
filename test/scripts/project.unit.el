@@ -22,6 +22,7 @@
       (should (string= (plist-get pinfo :index) "c0000"))
       (should (string= (plist-get pinfo :project-path) project-path))
       (should (string= (plist-get pinfo :brief) ""))
+      (should (string= (plist-get pinfo :version) "0.1.0"))
       (should (string= (plist-get pinfo :commentary) ""))
       (should (stringp (plist-get pinfo :license)))
       (should (null    (plist-get pinfo :files)))

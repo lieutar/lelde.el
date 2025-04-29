@@ -6,7 +6,7 @@
 (require '{{index}}/META)
 (require '{{index}}/core)
 ;;!end
-;;!bundle
+;;!insert-bundled
 ;;!static-macro
 (lelde-emit-for-index)
 

@@ -23,6 +23,7 @@
                                (reverse result))))
                      (format "  :%s %s"
                              key
-                             (ppp-sexp-to-string data))
+                             (s-replace-regexp
+                              "\n\\'" "" (ppp-sexp-to-string data)))
                      ))))
  }})

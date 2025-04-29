@@ -26,6 +26,7 @@
     (list :name                    name
           :index                   index
           :libs                    nil
+          :version                 "0.1.0"
           :brief                   ""
           :commentary              ""
           :files                   nil
