@@ -37,6 +37,8 @@
                                         (list "src/README.md" "README.md"))
           :copyright               copyright
           :author                  author
+          :license                 "This project is licensed under the GNU General Public License v3.
+see: https://www.gnu.org/licenses/gpl-3.0.html"
           :emacs                   emacs-version
           :project-path            project-root
           :sources                 '(gnu

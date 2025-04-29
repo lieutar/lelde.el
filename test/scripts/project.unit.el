@@ -23,6 +23,7 @@
       (should (string= (plist-get pinfo :project-path) project-path))
       (should (string= (plist-get pinfo :brief) ""))
       (should (string= (plist-get pinfo :commentary) ""))
+      (should (stringp (plist-get pinfo :license)))
       (should (null    (plist-get pinfo :files)))
       (should (string= (format "%S" (plist-get pinfo :files-to-update))
                        (format "%S" '("Makefile" "Cask" "recipe/c0000"))))
