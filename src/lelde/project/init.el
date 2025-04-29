@@ -8,6 +8,20 @@
 ;;!end
 
 ;;; lelde/project/init
+
+(defun lelde/project/init::--move-to-backup-if-exists (file)
+  (let ((new-name file)
+        (counter  0))
+    (while (f-exists-p new-name)
+      (setq new-name (if (zerop counter)
+                         (format "%s.bak" file)
+                       (format "%s.%s.bak" file counter)))
+      (setq counter (1+ counter)))
+    (unless (equal file new-name)
+      (rename-file file new-name)
+      (message "%s is already exists. it was renamed as %s."
+               file new-name))))
+
 ;;!export
 (defun lelde/project/init::init-project ()
   ""
@@ -18,9 +32,7 @@
       (error
        "WTH? \"git init\" was success. However, there isn't valid \".git\"")))
   (when (f-exists-p "Cask") (delete-file "Cask"))
-  (when (f-exists-p "Lelde")
-    (rename-file "Lelde" "Lelde.bak")
-    (message "Lelde is already exists. it was renamed as Lelde.bak"))
+  (lelde/project/init::--move-to-backup-if-exists "Lelde")
   (lelde/cli::init)
   (let* ((pinfo (lelde/project::get-project-info "."))
          (index (plist-get pinfo :index))
@@ -33,9 +45,7 @@
                  (-map #'car)
                  (--filter (not (string= "Lelde" it)))))))
     (dolist (file files)
-      (when (f-exists-p file)
-        (rename-file file (format "%s.bak" file))
-        (message "%s is already exists. it was renamed as %s.bak" file file)))
+      (lelde/project/init::--move-to-backup-if-exists file))
     (apply #'lelde/project/update::update-files files)
     (let ((scripts-dir (plist-get pinfo :scripts-path)))
       (dolist (f (directory-files scripts-dir))

@@ -135,6 +135,8 @@
                                         (list "src/README.md" "README.md"))
           :copyright               copyright
           :author                  author
+          :license                 "This project is licensed under the GNU General Public License v3.
+see: https://www.gnu.org/licenses/gpl-3.0.html"
           :emacs                   emacs-version
           :project-path            project-root
           :sources                 '(gnu
@@ -746,6 +748,20 @@ parsing techniques may be necessary."
 
 
 ;;; lelde/project/init
+
+(defun lelde/project/init::--move-to-backup-if-exists (file)
+  (let ((new-name file)
+        (counter  0))
+    (while (f-exists-p new-name)
+      (setq new-name (if (zerop counter)
+                         (format "%s.bak" file)
+                       (format "%s.%s.bak" file counter)))
+      (setq counter (1+ counter)))
+    (unless (equal file new-name)
+      (rename-file file new-name)
+      (message "%s is already exists. it was renamed as %s."
+               file new-name))))
+
 ;;!export
 (defun lelde/project/init::init-project ()
   ""
@@ -756,9 +772,7 @@ parsing techniques may be necessary."
       (error
        "WTH? \"git init\" was success. However, there isn't valid \".git\"")))
   (when (f-exists-p "Cask") (delete-file "Cask"))
-  (when (f-exists-p "Lelde")
-    (rename-file "Lelde" "Lelde.bak")
-    (message "Lelde is already exists. it was renamed as Lelde.bak"))
+  (lelde/project/init::--move-to-backup-if-exists "Lelde")
   (lelde/cli::init)
   (let* ((pinfo (lelde/project::get-project-info "."))
          (index (plist-get pinfo :index))
@@ -771,9 +785,7 @@ parsing techniques may be necessary."
                  (-map #'car)
                  (--filter (not (string= "Lelde" it)))))))
     (dolist (file files)
-      (when (f-exists-p file)
-        (rename-file file (format "%s.bak" file))
-        (message "%s is already exists. it was renamed as %s.bak" file file)))
+      (lelde/project/init::--move-to-backup-if-exists file))
     (apply #'lelde/project/update::update-files files)
     (let ((scripts-dir (plist-get pinfo :scripts-path)))
       (dolist (f (directory-files scripts-dir))
@@ -966,14 +978,6 @@ The plist contains the following information:
 
 ;;;###autoload
 (defalias 'lelde-elconc-bundle 'lelde/elconc::elconc-bundle)
-
-;;;###autoload
-(defvaralias 'lelde-init-hook 'lelde/init::$init-hook)
-
-;;;###autoload
-(defun lelde-init nil
-  (interactive)
-  (lelde/init::init))
 
 ;;;###autoload
 (defalias 'lelde-stmax-file 'lelde/stmax::stmax-file)

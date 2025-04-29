@@ -8,4 +8,4 @@
     (let ((default-directory (f-expand "hello")))
       (lelde-init-project)
       ;;(should (zerop (call-process "make" nil nil nil "test"))
-      ))))
+      )))
