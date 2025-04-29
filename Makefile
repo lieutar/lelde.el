@@ -26,7 +26,7 @@ emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
 lelde_update = $(emacs_common) -l lelde -f lelde-update-project-files
 lelde_fill   = $(emacs_common) -l lelde -f lelde-tinplate-fill
 lelde_bundle = $(emacs_common) -l lelde -f lelde-elconc-bundle
-lelde_stmax  = $(emacc_common) -l lelde -f lelde-stmax-file
+lelde_stmax  = $(emacs_common) -l lelde -f lelde-stmax-file
 
 # You can modify by custom.mk
 -include custom.mk
