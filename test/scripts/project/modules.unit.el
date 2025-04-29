@@ -1,10 +1,7 @@
 ;; -*- lexical-binding: t -*-
 
-(require 'buttercup)
-(require 'f)
 (require 'lelde/project/modules)
 (require 'lelde/test)
-
 (lelde/test::test-setup)
 (require 'lelde-test)
 

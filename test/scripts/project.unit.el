@@ -1,11 +1,7 @@
 ;; -*- lexical-binding: t -*-
-(require 'buttercup)
 (require 'lelde/project)
 (require 'lelde/test)
-(require 'slash-tmp)
-(require 'f)
-;;(require 'ppp)
-(lelde/test::setup-test-environment $T)
+(lelde/test::test-setup)
 
 (describe "lelde/project empty project (only .gitignore)"
   (let* ((project-path nil)
@@ -13,7 +9,7 @@
          (pinfo      nil))
     (/tmp/with-temp-dir
       (/tmp/weird-magic-spell)
-      (lelde/test/util::test-rsc-untar $T "project/c0000-empty.tar.gz")
+      (lelde/test::test-call rsc-untar "project/c0000-empty.tar.gz")
       (setq dir-exists   (f-dir-p "c0000.emacs"))
       (setq project-path (f-expand "c0000.emacs/"))
       (setq pinfo (lelde/project::get-project-info "c0000.emacs"))
@@ -33,9 +29,9 @@
       (should (stringp (plist-get pinfo :copyright)))
       (should (stringp (plist-get pinfo :author)))
       (should (string= (plist-get pinfo :emacs) emacs-version))
-      (should (string= (format "%S" (plist-get pinfo :sources)) "(gnu melpa)"))
+      (should (plist-get pinfo :sources))
       (should (null    (plist-get pinfo :dependency)))
-      (should (null    (plist-get pinfo :dev-dependency)))
+      (should (plist-get pinfo :dev-dependency))
       (should (string= (plist-get pinfo :test-feature) ""))
       (should (string= (plist-get pinfo :test-runner)  ""))
       (should (string= (plist-get pinfo :test-scripts-dir) "test/scripts"))

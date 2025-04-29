@@ -1,45 +1,13 @@
 ;; -*- lisp-data -*-
 (lelde-project
- :name "{{name}}"
- :index "{{index}}"
- :version "0.1.0"
- :drop-version-on-recipe t
- :emacs {{()(format "%S" emacs-version)}}
- :brief  ""     ;; YOUR MODULE'S SHORT DESCRIPTION
- :commentary "" ;; YOUR MODULE'S LONG DESCRIPTION
- :copyright {{(copyright)(format "%S" copyright)}}
- :author    {{(author)(format "%S" author)}}
- :keywords  ()
- :url       ""
- :repo      nil
- :files     ()
- :files-to-update ( "Cask"
-                    "Makefile"
-                    "{{src-dir}}/{{index}}/META.el"
-                    "{{recipe-dir}}/{{index}}")
- :template-alist (("{{src-dir}}/README.md" "README.md")
-                  ("{{src-dir}}/{{index}}.bundled.el" "{{index}}.el"))
- :license "This project is licensed under the GNU General Public License v3.
-See: https://www.gnu.org/licenses/gpl-3.0.html"
- :sources   (gnu
-             melpa
-             ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
- :dependency ()
- :dev-dependency (lelde
-                  ;;buttercup
-                  )
-
-  :scripts-dir   "scripts"
-  :src-dir       "src"
-
-
-  :test-feature "-l ert"
-  :test-runner  "-f ert-run-tests-batch-and-exit"
-
-  :test-integration-suffix ".test.el"
-  :test-unit-suffix ".unit.el"
-
-  :test-scripts-dir "test/scripts"
-  :test-lib-dir     "test/lib"
-  :test-rsc-dir     "test/rsc"
-  )
+{{(@ENV)(s-join "\n" (->> (reverse @ENV)
+                          (--filter (let ((key (car it)))
+                                      (not (or (equal key "@ENV")
+                                               (s-match "-path\\'" key)))))
+                          (--map (let ((key (car it))
+                                       (data (cdr it)))
+                                   (format "  :%s %s"
+                                           key
+                                           (ppp-sexp-to-string data))
+                                   ))))
+ }})

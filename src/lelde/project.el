@@ -39,9 +39,11 @@
           :author                  author
           :emacs                   emacs-version
           :project-path            project-root
-          :sources                 '(gnu melpa)
+          :sources                 '(gnu
+                                     melpa
+                                     ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
           :dependency              nil
-          :dev-dependency          nil
+          :dev-dependency          '(lelde)
           :test-feature            ""
           :test-runner             ""
           :src-dir                 "src"

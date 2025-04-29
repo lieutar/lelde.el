@@ -5,5 +5,5 @@
 {{(dependency)(lelde/tinplate/util::Cask-depends-on dependency "")}}
 
 (development
-{{(dev-dependency)
-  (lelde/tinplate/util::Cask-depends-on dev-dependency "  ")}})
+ {{(@ENV dev-dependency)
+   (lelde/tinplate/util::Cask-depends-on dev-dependency "  ")}})

@@ -139,5 +139,5 @@ test:
 test-unit:
 	@$(test_common) $(LU) $(test_runner) | $(test_truncate)
 
-test-integration:
-	@$(test_common) $(IU) $(test_runner) | $(test_truncate)
+test-integration: $(INDEX_EL)
+	@$(test_common) $(LI) $(test_runner) | $(test_truncate)

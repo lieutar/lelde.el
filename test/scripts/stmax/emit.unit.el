@@ -1,8 +1,5 @@
 ;; -*- lexical-binding: t -*-
-(require 'buttercup)
 (require 'lelde/stmax/emit)
-(require 'cl-lib)
-(require 'f)
 (require 'lelde/test)
 (lelde/test::test-setup)
 (require 'lelde-test)

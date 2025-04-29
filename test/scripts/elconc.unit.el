@@ -1,10 +1,6 @@
 ;; -*- lexical-binding: t -*-
-(require 'buttercup)
 (require 'lelde/elconc)
 (require 'lelde/test)
-(require 'slash-tmp)
-(require 'f)
-
 (lelde/test::test-setup)
 (require 'lelde-test)
 

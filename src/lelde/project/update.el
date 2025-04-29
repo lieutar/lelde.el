@@ -50,10 +50,3 @@
     (let ((dir (f-dirname (f-expand file pp))))
       (unless (f-dir-p dir) (apply #'f-mkdir (f-split dir))))
     (lelde/tinplate::fill pinfo template (f-expand file pp))))
-
-;;(lelde/project/update::update-file "Cask")
-;;(lelde/project/update::update-file "Makefile")
-;;(lelde/project/update::update-file "init.sh" "bootstrap")
-
-;;(insert "\n" (lelde/project/update::update-file "src/lelde.src.el"))
-;;(insert "\n" (ppp-sexp-to-string (lelde/project/update::update-file "Cask")))

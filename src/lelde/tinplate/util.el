@@ -11,23 +11,23 @@
   (s-replace-regexp
    "^" indent
    (mapconcat
-   (lambda (it)
-     (let* ((pkg   (car it))
-            (plist (cdr it))
-            (type  (plist-get plist :type)))
-       (cond ((eq type 'core)
-              (format ";; %s (core)\n" pkg))
-             ((eq type 'elpa)
-              (ppp-sexp-to-string
-               `(depends-on ,(symbol-name pkg) ,(plist-get plist :version))))
-             ((eq type 'local)
-              (format ";; %s file\n" pkg))
-             ((eq type 'lelde)
-              (ppp-sexp-to-string
-               `(depends-on ,(symbol-name pkg) :git ,(plist-get plist :git))))
-             (t (format ";; %s UNKNOWN (%s)\n" pkg type)))
-       ))
-   dependency)))
+    (lambda (it)
+      (let* ((pkg   (car it))
+             (plist (cdr it))
+             (type  (plist-get plist :type)))
+        (cond ((eq type 'core)
+               (format ";; %s (core)\n" pkg))
+              ((eq type 'elpa)
+               (ppp-sexp-to-string
+                `(depends-on ,(symbol-name pkg) ,(plist-get plist :version))))
+              ((eq type 'local)
+               (format ";; %s file\n" pkg))
+              ((eq type 'lelde)
+               (ppp-sexp-to-string
+                `(depends-on ,(symbol-name pkg) :git ,(plist-get plist :git))))
+              (t (format ";; %s UNKNOWN (%s)\n" pkg type)))
+        ))
+    dependency)))
 
 (defun lelde/tinplate/util::index-pr (depends)
   (let* ((warnings nil)

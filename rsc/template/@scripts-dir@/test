@@ -18,12 +18,12 @@ if [ -z "$i" ] && [ -z "$u" ]; then
     if ! make test-unit ; then
         code=1
     fi
-    if ! make test-intg ; then
+    if ! make test-integration ; then
         code=1
     fi
     exit $code
 elif [ -n "$i" ]; then
-    I="$i" make test-intg
+    I="$i" make test-integration
 else
     U="$u" make test-unit
 fi

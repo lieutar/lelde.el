@@ -26,12 +26,16 @@ The plist contains the following information:
             (list :this-file     test-script
                   :this-dir      this-dir))))
 
-(defun lelde/test::--setup-test-environment (test-spec)
+(defun lelde/test::--setup-test-environment (test-spec &rest props)
   (dolist (path (list (plist-get test-spec :test-lib-path)
                       (plist-get test-spec :src-path)))
     (when (and (not (member path load-path))
                (f-dir-p path))
-      (setq load-path (cons path load-path)))))
+      (push path load-path)))
+  (when (if (memq :load-deps props) (plist-get props :load-deps) t)
+    (dolist (feature (-map #'car (append (plist-get test-spec :dependency)
+                                         (plist-get test-spec :dev-dependency))))
+      (require feature))))
 
 (defconst lelde/test::$test-enviroments-alist ())
 (defun lelde/test::--registered-test-spec (file)
@@ -61,23 +65,5 @@ The plist contains the following information:
   `(let* ((file     (or load-file-name buffer-file-name))
           (new-spec (append (lelde/test::make-test-spec file)
                             ,@additional-props)))
-     (lelde/test::--setup-test-environment new-spec)
+     (lelde/test::--setup-test-environment new-spec ,@additional-props)
      (push  (cons file new-spec) lelde/test::$test-enviroments-alist)))
-
-;;!export
-(defmacro lelde/test::setup-test-environment (&optional var)
-  "Sets up your test environment and returns informations of your tests.
-If you want to set up `load-path' for your test, you just call this macro,
-and if you want to use the information of your test script and your project
-you store return value into some variable.
-for example:
-
-;; -*- lexical-binding: t -*-
-(require 'lelde)
-(lelde-setup-test-environment $T) ;; set to $T test spec
-
-"
-  `(let ((test-spec (lelde/test::make-test-spec
-                       (or load-file-name buffer-file-name))))
-     (lelde/test::--setup-test-environment test-spec)
-     ,(if var `(setq ,var test-spec) 'test-spec)))
