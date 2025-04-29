@@ -1,13 +1,28 @@
 ;; -*- lisp-data -*-
 (lelde-project
-{{(@ENV)(s-join "\n" (->> (reverse @ENV)
-                          (--filter (let ((key (car it)))
-                                      (not (or (equal key "@ENV")
-                                               (s-match "-path\\'" key)))))
-                          (--map (let ((key (car it))
-                                       (data (cdr it)))
-                                   (format "  :%s %s"
-                                           key
-                                           (ppp-sexp-to-string data))
-                                   ))))
+ {{(@ENV)
+
+ (s-join
+  "\n" (->> (reverse @ENV)
+            (--filter (let ((key (car it)))
+                        (not (or (equal key "@ENV")
+                                 (s-match "-path\\'" key)))))
+            (--map (let ((key (car it))
+                         (data (cdr it)))
+                     (when (or (equal key "dependency")
+                               (equal key "dev-dependency"))
+                       (setq data
+                             (let (result)
+                               (dolist (slot data)
+                                 (let ((mod (car slot))
+                                       (ver (plist-get (cdr slot) :version)))
+                                   (when (and ver
+                                              (not (equal ver "0")))
+                                     (push ver result))
+                                   (push mod result)))
+                               (reverse result))))
+                     (format "  :%s %s"
+                             key
+                             (ppp-sexp-to-string data))
+                     ))))
  }})
