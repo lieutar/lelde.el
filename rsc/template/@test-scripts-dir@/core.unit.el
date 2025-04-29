@@ -1,4 +1,5 @@
-(require 'ert)
+(require 'lelde)
+(lelde-test-setup)
 (require '{{index}}/core)
 
 (ert-deftest {{index}}-test/core::hello ()

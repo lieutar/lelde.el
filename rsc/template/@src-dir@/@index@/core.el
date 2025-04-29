@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t -*-
 
 ;;!drop-when-bundled
-(provide '{{lelde}}/core)
+(provide '{{index}}/core)
 (require '{{index}}/META)
 ;;!end
 

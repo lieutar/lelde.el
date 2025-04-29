@@ -1,4 +1,5 @@
-(require 'ert)
+(require 'lelde)
+(lelde-test-setup)
 (require 'check-declare)
 (require 'checkdoc)
 
