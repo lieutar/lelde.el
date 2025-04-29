@@ -4,7 +4,7 @@
 
 ;;!drop-when-bundled
 (require '{{index}}/META)
-(require '{{lelde}}/core)
+(require '{{index}}/core)
 ;;!end
 ;;!bundle
 ;;!static-macro
