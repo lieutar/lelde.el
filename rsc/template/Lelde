@@ -24,6 +24,8 @@
                      (format "  :%s %s"
                              key
                              (s-replace-regexp
-                              "\n\\'" "" (ppp-sexp-to-string data)))
+                              "\\\\n" "\n"
+                              (s-replace-regexp
+                               "\n\\'" "" (ppp-sexp-to-string data))))
                      ))))
  }})

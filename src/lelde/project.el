@@ -33,7 +33,7 @@
           :files-to-update        (list "Makefile"
                                         "Cask"
                                         (format "recipe/%s" index))
-          :template-alist         (list (list (format "src/%s.el" index)
+          :template-alist         (list (list (format "src/%s.bundled.el" index)
                                               (format "%s.el" index))
                                         (list "src/README.md" "README.md"))
           :copyright               copyright
