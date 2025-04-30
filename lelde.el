@@ -124,13 +124,14 @@
     (list :name                    name
           :index                   index
           :libs                    nil
+          :version                 "0.1.0"
           :brief                   ""
           :commentary              ""
           :files                   nil
           :files-to-update        (list "Makefile"
                                         "Cask"
                                         (format "recipe/%s" index))
-          :template-alist         (list (list (format "src/%s.el" index)
+          :template-alist         (list (list (format "src/%s.bundled.el" index)
                                               (format "%s.el" index))
                                         (list "src/README.md" "README.md"))
           :copyright               copyright
@@ -693,7 +694,7 @@ parsing techniques may be necessary."
 ;;!export
 (defun lelde/stmax/emit::emit-index-header ()
   ""
-  (lelde/rsc::get-rsc "common/index-header.el"))
+  (lelde/rsc::get-rsc "common/index-header.el@@"))
 
 ;;!export
 (defmacro lelde/stmax/emit::emit-for-index ()

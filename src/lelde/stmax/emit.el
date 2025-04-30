@@ -13,7 +13,7 @@
 ;;!export
 (defun lelde/stmax/emit::emit-index-header ()
   ""
-  (lelde/rsc::get-rsc "common/index-header.el"))
+  (lelde/rsc::get-rsc "common/index-header.el@@"))
 
 ;;!export
 (defmacro lelde/stmax/emit::emit-for-index ()
