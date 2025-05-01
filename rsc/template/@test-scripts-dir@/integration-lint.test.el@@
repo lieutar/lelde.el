@@ -3,10 +3,20 @@
 (require 'check-declare)
 (require 'checkdoc)
 
-(ert-deftest {{index}}/check-declare ()
+(ert-deftest {{index}}-itest/check-declare ()
   "Test integrated files by check-declare"
-  (should-not (check-declare-file (locate-library "{{index}}.el"))))
+  (let* ((file (locate-library "{{index}}.el"))
+         (warnings (with-current-buffer (get-buffer-create "*Warnings*")
+                     (let ((head (point)))
+                       (check-declare-file file)
+                       (buffer-substring-no-properties head (point-max))))))
+    (should (equal warnings ""))))
 
-(ert-deftest {{index}}/check-doc ()
+(ert-deftest {{index}}-itest/check-doc ()
   "Test integrated files by checkdoc"
-  (should-not (checkdoc-file (locate-library "{{index}}.el"))))
+  (let* ((file (locate-library "{{index}}.el"))
+         (warnings (with-current-buffer (get-buffer-create "*Warnings*")
+                     (let ((head (point)))
+                       (checkdoc-file file)
+                       (buffer-substring-no-properties head (point-max))))))
+    (should (equal warnings ""))))

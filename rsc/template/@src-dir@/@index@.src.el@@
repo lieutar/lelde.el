@@ -11,4 +11,4 @@
 (lelde-emit-for-index)
 
 (provide '{{index}})
-;; {{index}}.el ends here.
+;;; {{index}}.el ends here.
