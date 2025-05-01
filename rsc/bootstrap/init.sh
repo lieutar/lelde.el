@@ -27,7 +27,7 @@ fi
 cat <<EOF >Cask
 (source gnu)
 (source melpa)
-(source "looper" "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents")
+(source "looper" "https://lieutar.github.io/looper-elpa/")
 (depends-on "lelde")
 EOF
 

@@ -2,7 +2,7 @@
 
 {{() "{\{description-brief}\}"}}
 
-{{() (format "{\{(description) %S}\}"
+{{() (format "{\{(commentary) %S}\}"
 '(s-replace-regexp "\\(`[^']+\\)'" "\\1`" commentary))}}
   
 ## Lincense

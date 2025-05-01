@@ -42,9 +42,9 @@
 see: https://www.gnu.org/licenses/gpl-3.0.html"
           :emacs                   emacs-version
           :project-path            project-root
-          :sources                 '(gnu
-                                     melpa
-                                     ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
+          :sources '(gnu
+                     melpa
+                     ("looper" "https://lieutar.github.io/looper-elpa/"))
           :dependency              nil
           :dev-dependency          '(lelde)
           :test-feature            ""
