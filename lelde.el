@@ -140,9 +140,9 @@
 see: https://www.gnu.org/licenses/gpl-3.0.html"
           :emacs                   emacs-version
           :project-path            project-root
-          :sources                 '(gnu
-                                     melpa
-                                     ("looper"  "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents"))
+          :sources '(gnu
+                     melpa
+                     ("looper" "https://lieutar.github.io/looper-elpa/"))
           :dependency              nil
           :dev-dependency          '(lelde)
           :test-feature            ""
@@ -944,6 +944,24 @@ The plist contains the following information:
      (lelde/test::--setup-test-environment new-spec ,@additional-props)
      (push  (cons file new-spec) lelde/test::$test-enviroments-alist)))
 
+;;!export
+(defmacro lelde/test::ert (name &rest body)
+  "Provide syntax sugar to `ert-deftest'."
+  (let ((args nil)
+        (docstring (symbol-name name)))
+    (when (eq :args (car body))
+      (setq args (cadr body))
+      (setq body (cddr body)))
+    (when (stringp (car body))
+      (setq docstring (car body))
+      (setq body (cdr body)))
+    `(let* ((project-name (plist-get (lelde/test::test-spec) :name))
+            (ert-name (intern (format "%s-test::%s" project-name ',name)))
+            (args     ',args)
+            (docstr   ,docstring)
+            (body     ',body))
+       (eval `(ert-deftest ,ert-name ,args ,docstr ,@body)))))
+
 ;;;###autoload
 (defalias 'lelde-init-project 'lelde/project/init::init-project)
 
@@ -991,6 +1009,9 @@ The plist contains the following information:
 
 ;;;###autoload
 (defalias 'lelde-test-setup 'lelde/test::test-setup)
+
+;;;###autoload
+(defalias 'lelde-ert 'lelde/test::ert)
 
 ;;;###autoload
 (defalias 'lelde-tinplate-fill 'lelde/tinplate::tinplate-fill)

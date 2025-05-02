@@ -9,7 +9,7 @@ SRC_DIR      := src
 SRC_INDEX_EL := $(SRC_DIR)/$(INDEX_EL)
 META_EL      := $(SRC_DIR)/$(INDEX)/META.el
 SUBMOD_DIR   := $(SRC_DIR)/$(INDEX)
-EMACS_OPTS   := --batch -Q
+EMACS_OPTS   := --batch -Q -l scripts/exec.el
 
 INDEX_EL      := $(INDEX).el
 TARGET	      := $(INDEX).elc
@@ -21,8 +21,8 @@ INDEX_BUNDLED := $(SRC_DIR)/$(INDEX).bundled.el
 PHONY := help all build package clean clean-all clean-cask update Makefile-itself\
 	test test-unit test-integration
 
-emacs_common = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
-emacs_integ  = $(CASK) exec $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
+emacs_common = $(EMACS) $(EMACS_OPTS) -L $(SRC_DIR)
+emacs_integ  = $(EMACS) $(EMACS_OPTS) -L .
 lelde_update = $(emacs_common) -l lelde -f lelde-update-project-files
 lelde_fill   = $(emacs_common) -l lelde -f lelde-tinplate-fill
 lelde_bundle = $(emacs_common) -l lelde -f lelde-elconc-bundle
@@ -158,6 +158,7 @@ LI	   := $(foreach f,$(I),-l $f)
 LU	   := $(foreach f,$(U),-l $f)
 
 test_common := $(emacs_common) -l ert -l buttercup
+test_integ  := $(emacs_integ)  -l ert -l buttercup
 test_runner :=  --eval '(describe "")' -f buttercup-run -f ert-run-tests-batch-and-exit
 test_truncate := TCOLS=$(TCOLS) scripts/truncate
 
@@ -168,4 +169,4 @@ test-unit:
 	@$(test_common) $(LU) $(test_runner) | $(test_truncate)
 
 test-integration: $(INDEX_EL)
-	@$(test_common) $(LI) $(test_runner) | $(test_truncate)
+	@$(test_integ) $(LI) $(test_runner) | $(test_truncate)

@@ -2,7 +2,7 @@
 ;; This Cask file was generated from the Lelde file by `lelde'
 (source gnu)
 (source melpa)
-(source "looper" "https://raw.githubusercontent.com/lieutar/looper-elpa/refs/heads/looper/packages/archive-contents")
+(source "looper" "https://lieutar.github.io/looper-elpa/")
 
 
 (depends-on "f" "0")
@@ -18,7 +18,7 @@
 
 
 (development
-  (depends-on "buttercup" "0")
+   (depends-on "buttercup" "0")
   (depends-on "slash-tmp" "0")
   (depends-on "with-advice" "0")
   )
