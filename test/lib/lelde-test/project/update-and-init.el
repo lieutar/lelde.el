@@ -6,7 +6,7 @@
 (require 'slash-tmp)
 (require 'with-advice)
 
-(defconst lelde-test/project/init::$num-files 16)
+(defconst lelde-test/project/init::$num-files 17)
 
 (defun lelde-test/project/update-and-init::name-to-index (name)
   (s-replace-regexp "\\(?:\\.[^\\.]*\\)*\\'" "" name))

@@ -67,3 +67,21 @@ The plist contains the following information:
                             ,@additional-props)))
      (lelde/test::--setup-test-environment new-spec ,@additional-props)
      (push  (cons file new-spec) lelde/test::$test-enviroments-alist)))
+
+;;!export
+(defmacro lelde/test::ert (name &rest body)
+  "Provide syntax sugar to `ert-deftest'."
+  (let ((args nil)
+        (docstring (symbol-name name)))
+    (when (eq :args (car body))
+      (setq args (cadr body))
+      (setq body (cddr body)))
+    (when (stringp (car body))
+      (setq docstring (car body))
+      (setq body (cdr body)))
+    `(let* ((project-name (plist-get (lelde/test::test-spec) :name))
+            (ert-name (intern (format "%s-test::%s" project-name ',name)))
+            (args     ',args)
+            (docstr   ,docstring)
+            (body     ',body))
+       (eval `(ert-deftest ,ert-name ,args ,docstr ,@body)))))
