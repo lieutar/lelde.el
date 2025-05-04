@@ -4,10 +4,8 @@
 (provide 'lelde/META)
 ;;!end
 
-;;;; lelde/META
-
+;;;;; lelde/META
 (defconst lelde-VERSION "0.1.0")
-
 (require 'f)
 (require 's)
 (require 'dash)
@@ -18,3 +16,4 @@
 (require 'stmax)
 (require 'elconc)
 (require 'tinplate)
+

@@ -3,11 +3,9 @@
 ;;!drop-when-bundled
 (provide '{{index}}/META)
 ;;!end
-
+
 ;;;;; {{index}}/META
-
 (defconst {{index}}-VERSION {{(version)(format "%S" version)}})
-
 {{(dependency)
 (mapconcat
  (lambda (dep) (format "(require '%s)\n" (car dep)))

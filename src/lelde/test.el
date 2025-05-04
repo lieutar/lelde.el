@@ -71,6 +71,7 @@ The plist contains the following information:
 ;;!export
 (defmacro lelde/test::ert (name &rest body)
   "Provide syntax sugar to `ert-deftest'."
+  (declare (indent defun))
   (let ((args nil)
         (docstring (symbol-name name)))
     (when (eq :args (car body))

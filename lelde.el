@@ -29,10 +29,8 @@
 
 
 
-;;;; lelde/META
-
+;;;;; lelde/META
 (defconst lelde-VERSION "0.1.0")
-
 (require 'f)
 (require 's)
 (require 'dash)
@@ -43,6 +41,7 @@
 (require 'stmax)
 (require 'elconc)
 (require 'tinplate)
+
 
 
 ;;; lelde/project/depends
@@ -111,13 +110,20 @@
 
 (defsubst lelde/project::--CONFIG-FILE () "Lelde")
 
+(defsubst lelde/project::--git-g-conf (prop)
+  (ignore-errors
+    (with-temp-buffer
+      (when (zerop (call-process "git" nil t nil "config" "--global" prop))
+        (s-chomp (buffer-substring-no-properties (point-min)(point-max)))))))
+
 (defsubst lelde/project::--default-config (project-root)
   (let* ((name  (f-filename (f-expand project-root)))
          (index (s-replace-regexp "\\(?:\\.[^.]*\\)*\\'" "" name))
-          ;; TODO: get information from git configuration
-          ;; git config --global user.name
-          ;; git config --global user.email
-         (author    (format "%s <%s>" user-full-name user-mail-address))
+         (author    (format "%s <%s>"
+                            (or (lelde/project::--git-g-conf "user.name")
+                                user-full-name)
+                            (or (lelde/project::--git-g-conf "user.email")
+                                user-mail-address)))
          (copyright (format "%s %s"
                             (decoded-time-year (decode-time (current-time)))
                             author)))
@@ -126,17 +132,20 @@
           :libs                    nil
           :version                 "0.1.0"
           :brief                   ""
+          :keywords                nil
           :commentary              ""
+          :url                     ""
           :files                   nil
           :files-to-update        (list "Makefile"
                                         "Cask"
+                                        (format "src/%s/META.el" index)
                                         (format "recipe/%s" index))
           :template-alist         (list (list (format "src/%s.bundled.el" index)
                                               (format "%s.el" index))
                                         (list "src/README.md" "README.md"))
           :copyright               copyright
           :author                  author
-          :license                 "This project is licensed under the GNU General Public License v3.
+          :license "This project is licensed under the GNU General Public License v3.
 see: https://www.gnu.org/licenses/gpl-3.0.html"
           :emacs                   emacs-version
           :project-path            project-root
@@ -156,6 +165,14 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
           :test-scripts-dir        "test/scripts"
           :test-lib-dir            "test/lib"
           :test-rsc-dir            "test/rsc")))
+
+;;!export
+(defvar lelde/project::project-config-spec-alist
+  '((:brief :comment "Short message to describe the package"
+            :with-blank-line t)
+    (:commentary :comment "Long description for the package")
+    (:files      :comment "File globs of resource files"
+                 :nil-as-list t)))
 
 (defun lelde/project::get-project-config-file (project-root)
   (setq project-root (lelde/project::find-project-root project-root))
@@ -947,6 +964,7 @@ The plist contains the following information:
 ;;!export
 (defmacro lelde/test::ert (name &rest body)
   "Provide syntax sugar to `ert-deftest'."
+  (declare (indent defun))
   (let ((args nil)
         (docstring (symbol-name name)))
     (when (eq :args (car body))
@@ -997,6 +1015,9 @@ The plist contains the following information:
 
 ;;;###autoload
 (defalias 'lelde-elconc-bundle 'lelde/elconc::elconc-bundle)
+
+;;;###autoload
+(defvaralias 'lelde-project-config-spec-alist 'lelde/project::project-config-spec-alist)
 
 ;;;###autoload
 (defalias 'lelde-stmax-file 'lelde/stmax::stmax-file)

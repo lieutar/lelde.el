@@ -43,7 +43,8 @@ see: https://www.gnu.org/licenses/gpl-3.0.html"
 
   :files-to-update ( "Cask"
                      "Makefile"
-                     "recipe/lelde" )
+                     "recipe/lelde"
+                     "src/lelde/META.el")
 
   :template-alist (("src/lelde.bundled.el" "lelde.el")
                    ("src/README.md" "README.md"))

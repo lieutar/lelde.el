@@ -13,3 +13,4 @@ src/lelde.el
 src/lelde.bundled.el
 recipe/lelde.el
 # END lelde managed
+t

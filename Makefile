@@ -101,6 +101,10 @@ update := $(update) recipe/lelde
 recipe/lelde: Lelde
 	$(lelde_update) $@
 
+update := $(update) src/lelde/META.el
+src/lelde/META.el: Lelde
+	$(lelde_update) $@
+
 update := $(update) lelde.el
 lelde.el: src/lelde.bundled.el Lelde
 	$(lelde_fill) $< $@
