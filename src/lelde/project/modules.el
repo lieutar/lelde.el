@@ -75,8 +75,10 @@ parsing techniques may be necessary."
                         (when (and tree (listp tree))
                           (if (eq 'require (car tree))
                               (push (cadr tree) result)
-                            (dolist (node tree)
-                              (funcall recurse node)))))))
+                            (while (and tree (listp tree))
+                              (let ((node (car tree)))
+                                (funcall recurse node)
+                                (setq tree (cdr tree)))))))))
       (funcall recurse read-src))
     (-map 'cadr (--filter (and (listp it) (eq 'quote (car it))) result))))
 
